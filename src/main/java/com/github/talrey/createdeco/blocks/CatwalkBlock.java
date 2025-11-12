@@ -2,65 +2,62 @@ package com.github.talrey.createdeco.blocks;
 
 import com.zurrtum.create.content.equipment.wrench.IWrenchable;
 import com.zurrtum.create.foundation.block.ProperWaterloggedBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 public class CatwalkBlock extends Block implements IWrenchable, ProperWaterloggedBlock {
-  private static final VoxelShape VOXEL_TOP = Block.box(
+  private static final VoxelShape VOXEL_TOP = Block.createCuboidShape(
     0d, 14d, 0d,
     16d, 16d, 16d
   );
-  private static final VoxelShape SUPPORTED = Shapes.block();
-  public static final BooleanProperty BOTTOM = BlockStateProperties.BOTTOM;
+  private static final VoxelShape SUPPORTED = VoxelShapes.fullCube();
+  public static final BooleanProperty BOTTOM = Properties.BOTTOM;
 
-  public CatwalkBlock (Properties props) {
+  public CatwalkBlock (Settings props) {
     super(props);
-    this.registerDefaultState(this.defaultBlockState()
-        .setValue(BOTTOM, false)
-        .setValue(WATERLOGGED, false));
+    this.setDefaultState(this.getDefaultState()
+        .with(BOTTOM, false)
+        .with(WATERLOGGED, false));
   }
 
   @Override
-  public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx) {
-    return getInteractionShape(state, reader, pos);
+  public VoxelShape getOutlineShape(BlockState state, BlockView reader, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    return getCollisionShape(state, reader, pos, ctx);
   }
 
   @Override
-  public VoxelShape getInteractionShape (BlockState state, BlockGetter world, BlockPos pos) {
-    return state.getValue(BOTTOM) ? SUPPORTED : VOXEL_TOP;
+  public VoxelShape getCollisionShape (BlockState state, BlockView world, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    return state.get(BOTTOM) ? SUPPORTED : VOXEL_TOP;
   }
 
 
-  private boolean isBottom(BlockGetter level, BlockPos pos) {
-    return level.getBlockState(pos.below()).getBlock() instanceof SupportBlock;
+  private boolean isBottom(BlockView level, BlockPos pos) {
+    return level.getBlockState(pos.down()).getBlock() instanceof SupportBlock;
   }
 
   public static boolean isCatwalk (ItemStack test) {
     return (test.getItem() instanceof BlockItem be)
       && be.getBlock() instanceof CatwalkBlock;
-    //isCatwalk(((BlockItem)test.getItem()).getBlock());
   }
 
   public static boolean isCatwalk (Block test) {
@@ -68,57 +65,57 @@ public class CatwalkBlock extends Block implements IWrenchable, ProperWaterlogge
   }
 
   @Override
-  public BlockState getStateForPlacement (BlockPlaceContext ctx) {
-    FluidState fluid = ctx.getLevel().getFluidState(ctx.getClickedPos());
-    BlockPos blockPos = ctx.getClickedPos();
-    Level level = ctx.getLevel();
+  public BlockState getPlacementState (ItemPlacementContext ctx) {
+    FluidState fluid = ctx.getWorld().getFluidState(ctx.getBlockPos());
+    BlockPos blockPos = ctx.getBlockPos();
+    World level = ctx.getWorld();
 
-    return defaultBlockState()
-        .setValue(BlockStateProperties.WATERLOGGED, fluid.getType() == Fluids.WATER)
-        .setValue(BOTTOM, this.isBottom(level, blockPos));
+    return getDefaultState()
+        .with(Properties.WATERLOGGED, fluid.getFluid() == Fluids.WATER)
+        .with(BOTTOM, this.isBottom(level, blockPos));
   }
 
-  public static boolean canPlaceCatwalk (Level world, BlockPos pos) {
-    return world.getBlockState(pos).canBeReplaced();
-  }
-
-  @Override
-  protected void createBlockStateDefinition (StateDefinition.Builder<Block, BlockState> builder) {
-    super.createBlockStateDefinition(builder);
-    builder.add(BlockStateProperties.WATERLOGGED, BOTTOM);
+  public static boolean canPlaceCatwalk (World world, BlockPos pos) {
+    return world.getBlockState(pos).isReplaceable();
   }
 
   @Override
-  public boolean canPlaceLiquid(@Nullable Player playerEntity, BlockGetter world, BlockPos pos, BlockState state, Fluid fluid) {
-    return !state.getValue(BlockStateProperties.WATERLOGGED) && fluid == Fluids.WATER;
+  protected void appendProperties (StateManager.Builder<Block, BlockState> builder) {
+    super.appendProperties(builder);
+    builder.add(Properties.WATERLOGGED, BOTTOM);
+  }
+
+  @Override
+  public boolean canFillWithFluid(@Nullable PlayerEntity playerEntity, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
+    return !state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER;
   }
 
   @Override
   public FluidState getFluidState(BlockState state) {
-    return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
+    return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : Fluids.EMPTY.getDefaultState();
   }
 
-  public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-    BlockState blockState = state.setValue(BOTTOM, this.isBottom(level, pos));
+  public void scheduledTick(BlockState state, ServerWorld level, BlockPos pos, Random random) {
+    BlockState blockState = state.with(BOTTOM, this.isBottom(level, pos));
     if (state != blockState) {
-      level.setBlock(pos, blockState, 3);
+      level.setBlockState(pos, blockState, 3);
     }
   }
 
-  public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-    if (!level.isClientSide) {
-      level.scheduleTick(pos, this, 1);
+  public void onBlockAdded(BlockState state, World level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+    if (!level.isClient) {
+      level.scheduleBlockTick(pos, this, 1);
     }
 
   }
 
-  public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-    if (state.getValue(WATERLOGGED)) {
-      level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+  public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess level, BlockPos pos, BlockPos neighborPos) {
+    if (state.get(WATERLOGGED)) {
+      level.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(level));
     }
 
-    if (!level.isClientSide()) {
-      level.scheduleTick(pos, this, 1);
+    if (!level.isClient()) {
+      level.scheduleBlockTick(pos, this, 1);
     }
 
     return state;

@@ -51,7 +51,7 @@ public class BlockRegistry {
 	public static HashMap<DyeColor, HashMap<String, BlockEntry<SlabBlock>>>   SLABS = new HashMap<>();
 	public static HashMap<DyeColor, HashMap<String, BlockEntry<WallBlock>>>   WALLS= new HashMap<>();
 
-	public static HashMap<String, BlockEntry<DecalBlock>> DECALS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> DECALS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> YELLOW_CAGE_LAMPS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block>    RED_CAGE_LAMPS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block>  GREEN_CAGE_LAMPS = new HashMap<>();
@@ -144,12 +144,12 @@ public class BlockRegistry {
 	}
 
 	private static void registerDecals () {
-		ArrayList<BlockBuilder<DecalBlock, ?>> decals;
-		decals = Decals.build(CreateDecoMod.REGISTRATE);
-		decals.forEach(bb -> {
-			//DECALS.putIfAbsent("null", new HashMap<>());
-			DECALS.put(bb.getName(), bb.register());
-		});
+		// Register all decal blocks using vanilla registry API
+		var decals = Decals.createAndRegisterAll();
+		for (int i = 0; i < decals.size(); i++) {
+			DECALS.put(Decals.TYPES.get(i), decals.get(i));
+		}
+		// TODO: Create stonecutting recipe JSON files for decals (1 iron sheet → 1 decal)
 	}
 
 

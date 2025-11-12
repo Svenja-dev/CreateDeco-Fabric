@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    " C",
+    "CB"
+  ],
+  "key": {
+    "C": {
+      "item": "createdeco:zinc_catwalk"
+    },
+    "B": {
+      "item": "createdeco:zinc_bars"
+    }
+  },
+  "result": {
+    "id": "createdeco:zinc_catwalk_stairs",
+    "count": 2
+  }
+}

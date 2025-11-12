@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    " C",
+    "CB"
+  ],
+  "key": {
+    "C": {
+      "item": "createdeco:andesite_catwalk"
+    },
+    "B": {
+      "item": "createdeco:andesite_bars"
+    }
+  },
+  "result": {
+    "id": "createdeco:andesite_catwalk_stairs",
+    "count": 2
+  }
+}

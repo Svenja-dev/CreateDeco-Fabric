@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    " C",
+    "CB"
+  ],
+  "key": {
+    "C": {
+      "item": "createdeco:industrial_iron_catwalk"
+    },
+    "B": {
+      "item": "createdeco:industrial_iron_bars"
+    }
+  },
+  "result": {
+    "id": "createdeco:industrial_iron_catwalk_stairs",
+    "count": 2
+  }
+}

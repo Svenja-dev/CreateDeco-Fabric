@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    " P ",
+    "PBP",
+    " P "
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/zinc"
+    },
+    "B": {
+      "item": "createdeco:zinc_bars"
+    }
+  },
+  "result": {
+    "id": "createdeco:zinc_catwalk",
+    "count": 4
+  }
+}

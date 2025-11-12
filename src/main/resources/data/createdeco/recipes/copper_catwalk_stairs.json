@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    " C",
+    "CB"
+  ],
+  "key": {
+    "C": {
+      "item": "createdeco:copper_catwalk"
+    },
+    "B": {
+      "item": "createdeco:copper_bars"
+    }
+  },
+  "result": {
+    "id": "createdeco:copper_catwalk_stairs",
+    "count": 2
+  }
+}

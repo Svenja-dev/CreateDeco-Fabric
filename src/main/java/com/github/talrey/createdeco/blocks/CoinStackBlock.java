@@ -2,78 +2,77 @@ package com.github.talrey.createdeco.blocks;
 
 import com.github.talrey.createdeco.ItemRegistry;
 import com.zurrtum.create.foundation.block.ProperWaterloggedBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 public class CoinStackBlock extends Block implements ProperWaterloggedBlock {
   public final String material;
   private static final VoxelShape[] SHAPE = {
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 2d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 4d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 6d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 8d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 10d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 12d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 14d, 16d
     ),
-    Block.box(
+    Block.createCuboidShape(
       0d, 0d, 0d,
       16, 16d, 16d
     )
   };
 
-  public CoinStackBlock (Properties properties) {
+  public CoinStackBlock (Settings properties) {
     this(properties, "iron");
   }
 
-  public CoinStackBlock (Properties properties, String material) {
+  public CoinStackBlock (Settings properties, String material) {
     super(properties);
     this.material = material;
-    this.registerDefaultState(
-      this.defaultBlockState()
-        .setValue(BlockStateProperties.LAYERS, 1)
-        .setValue(WATERLOGGED, false)
+    this.setDefaultState(
+      this.getDefaultState()
+        .with(Properties.LAYERS, 1)
+        .with(WATERLOGGED, false)
     );
   }
 
   @Override
-  public VoxelShape getShape (BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-    return SHAPE[state.getValue(BlockStateProperties.LAYERS)-1];
+  public VoxelShape getOutlineShape (BlockState state, BlockView world, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    return SHAPE[state.get(Properties.LAYERS)-1];
   }
 
   @Override
@@ -82,36 +81,36 @@ public class CoinStackBlock extends Block implements ProperWaterloggedBlock {
   }
 
   @Override
-  public BlockState updateShape (BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
+  public BlockState getStateForNeighborUpdate (BlockState stateIn, Direction facing, BlockState facingState, WorldAccess worldIn, BlockPos currentPos, BlockPos facingPos) {
     updateWater(worldIn, stateIn, currentPos);
-    if (facing == Direction.DOWN && !canSupportCenter(worldIn, facingPos, Direction.UP)) return Blocks.AIR.defaultBlockState();
-    return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    if (facing == Direction.DOWN && !worldIn.getBlockState(facingPos).isSideSolidFullSquare(worldIn, facingPos, Direction.UP)) return Blocks.AIR.getDefaultState();
+    return super.getStateForNeighborUpdate(stateIn, facing, facingState, worldIn, currentPos, facingPos);
   }
 
   @Nullable
   @Override
-  public BlockState getStateForPlacement (BlockPlaceContext ctx) {
-    return withWater(defaultBlockState(), ctx);
+  public BlockState getPlacementState (ItemPlacementContext ctx) {
+    return withWater(getDefaultState(), ctx);
   }
 
   @Override
-  protected void createBlockStateDefinition (StateDefinition.Builder<Block, BlockState> builder) {
-    builder.add(BlockStateProperties.LAYERS, WATERLOGGED);
+  protected void appendProperties (StateManager.Builder<Block, BlockState> builder) {
+    builder.add(Properties.LAYERS, WATERLOGGED);
   }
 
   @Override
-  public ItemStack getCloneItemStack (LevelReader level, BlockPos pos, BlockState state) {
+  public ItemStack getPickStack (WorldView level, BlockPos pos, BlockState state) {
     return ItemRegistry.COINSTACKS.containsKey(material)
-      ? ItemRegistry.COINSTACKS.get(material).asStack()
+      ? new ItemStack(ItemRegistry.COINSTACKS.get(material))
       : new ItemStack(Items.AIR);
   }
 
   @Override
-  protected boolean canSurvive (BlockState state, LevelReader level, BlockPos pos) {
+  public boolean canPlaceAt (BlockState state, WorldView level, BlockPos pos) {
     return canSurvive(level, pos);
   }
 
-  public static boolean canSurvive (LevelReader level, BlockPos pos) {
-    return !level.isEmptyBlock(pos.below());
+  public static boolean canSurvive (WorldView level, BlockPos pos) {
+    return !level.isAir(pos.down());
   }
 }

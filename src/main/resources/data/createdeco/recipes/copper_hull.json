@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " p ",
+    "pbp",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "tag": "c:copper_plates"
+    },
+    "b": {
+      "item": "minecraft:copper_block"
+    }
+  },
+  "result": {
+    "item": "createdeco:copper_hull",
+    "count": 2
+  }
+}

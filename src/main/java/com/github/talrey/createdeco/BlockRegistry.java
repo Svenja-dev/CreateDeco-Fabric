@@ -72,7 +72,7 @@ public class BlockRegistry {
 	public static HashMap<String, BlockEntry<CatwalkRailingBlock>> CATWALK_RAILINGS = new HashMap<>();
 
 	public static HashMap<String, net.minecraft.block.Block> LADDERS = new HashMap<>();
-	public static HashMap<String, BlockEntry<HullBlock>> HULLS          = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> HULLS          = new HashMap<>();
 	public static HashMap<String, BlockEntry<SupportBlock>> SUPPORTS    = new HashMap<>();
 	public static HashMap<String, BlockEntry<SupportWedgeBlock>> WEDGES = new HashMap<>();
 	public static HashMap<String, BlockEntry<FacadeBlock>> FACADES      = new HashMap<>();
@@ -249,13 +249,12 @@ public class BlockRegistry {
 	}
 
 	private static void registerHulls (String metal, Function<String, Item> getter) {
-		HULLS.put(metal, Hulls.build(CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Hulls.recipeCrafting(metal, ctx, prov);
-					Hulls.recipeStonecutting(metal, ctx, prov);
-				})
-				.register()
-		);
+		// Register hull using vanilla registry API
+		HULLS.put(metal, Hulls.createAndRegister(metal));
+
+		// TODO: Create recipe JSON files for hulls
+		// Crafting: 4 plates + 1 block → 2 hulls
+		// Stonecutting: 1 block → 1 hull
 	}
 
 	private static void registerLadders (String metal, Function<String, Item> getter) {

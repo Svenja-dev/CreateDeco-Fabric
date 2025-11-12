@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " p ",
+    "pbp",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "tag": "c:iron_plates"
+    },
+    "b": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "createdeco:iron_hull",
+    "count": 2
+  }
+}

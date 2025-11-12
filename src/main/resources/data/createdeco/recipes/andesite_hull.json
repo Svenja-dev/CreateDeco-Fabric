@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " p ",
+    "pbp",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "tag": "c:andesite_alloy_plates"
+    },
+    "b": {
+      "item": "create:andesite_alloy_block"
+    }
+  },
+  "result": {
+    "item": "createdeco:andesite_hull",
+    "count": 2
+  }
+}

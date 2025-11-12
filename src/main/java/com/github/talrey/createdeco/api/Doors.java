@@ -1,138 +1,135 @@
 package com.github.talrey.createdeco.api;
 
-import com.github.talrey.createdeco.BlockStateGenerator;
-import com.github.talrey.createdeco.CreateDecoMod;
-import com.zurrtum.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.builders.BlockBuilder;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.block.TrapdoorBlock;
+import net.minecraft.block.enums.BlockSetType;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 
 import java.util.Locale;
-import java.util.function.Supplier;
 
+/**
+ * Factory API for creating and registering Door and Trapdoor blocks.
+ *
+ * Supports:
+ * - Metal doors (can be opened by hand)
+ * - Locked doors (require redstone power)
+ * - Metal trapdoors
+ *
+ * All use vanilla DoorBlock/TrapdoorBlock classes.
+ */
 public class Doors {
-  public static final BlockSetType OPEN_METAL_DOOR = new BlockSetType(
-    "metal", true, true, true, BlockSetType.PressurePlateSensitivity.EVERYTHING, SoundType.METAL,
-    SoundEvents.IRON_DOOR_CLOSE, SoundEvents.IRON_DOOR_OPEN,
-    SoundEvents.IRON_TRAPDOOR_CLOSE, SoundEvents.IRON_TRAPDOOR_OPEN,
-    SoundEvents.METAL_PRESSURE_PLATE_CLICK_OFF, SoundEvents.METAL_PRESSURE_PLATE_CLICK_ON,
-    SoundEvents.STONE_BUTTON_CLICK_OFF, SoundEvents.STONE_BUTTON_CLICK_ON
+
+  // BlockSetType for metal doors that can be opened by hand
+  public static final BlockSetType OPEN_METAL_DOOR = BlockSetType.register(
+    new BlockSetType(
+      "createdeco_metal",
+      true,  // canOpenByHand
+      true,  // canOpenByWindCharge
+      true,  // canButtonBeActivatedByArrows
+      BlockSetType.ActivationRule.EVERYTHING,
+      BlockSoundGroup.METAL,
+      SoundEvents.BLOCK_IRON_DOOR_CLOSE,
+      SoundEvents.BLOCK_IRON_DOOR_OPEN,
+      SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE,
+      SoundEvents.BLOCK_IRON_TRAPDOOR_OPEN,
+      SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_OFF,
+      SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON,
+      SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF,
+      SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON
+    )
   );
 
-  public static NonNullBiConsumer<DataGenContext<Block, DoorBlock>, RegistrateRecipeProvider> recipe (
-    Supplier<Item> ingot
-  ) {
-    return (ctx, prov) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ctx.get(), 3)
-      .pattern("mm")
-      .pattern("mm")
-      .pattern("mm")
-      .define('m', ingot.get())
-      .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance
-        .hasItems(ingot.get())
-      )
-      .save(prov);
-  }
-
-  public static BlockBuilder<DoorBlock,?> build (
-    CreateRegistrate reg, String metal, boolean locked
-  ) {
+  /**
+   * Creates and registers a metal door.
+   *
+   * @param metal The metal type (e.g., "Copper", "Brass")
+   * @param locked If true, creates a locked door (requires redstone)
+   * @return The registered door block
+   */
+  public static Block createAndRegisterDoor(String metal, boolean locked) {
     String regName = (locked ? "locked_" : "")
       + metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_")
       + "_door";
 
-    return reg.block(regName, p -> new DoorBlock(locked ? BlockSetType.GOLD : OPEN_METAL_DOOR, p))
-      .initialProperties(()-> Blocks.IRON_DOOR)
-      .properties(props -> props.noOcclusion().strength(5, 5).requiresCorrectToolForDrops()
-        .sound(SoundType.NETHERITE_BLOCK)
-      )
-      .blockstate((ctx, prov)-> BlockStateGenerator.door(reg, metal, locked, ctx, prov)
-      )
-      .addLayer(()-> RenderType::cutoutMipped)
-      .loot((table, block)-> {
-        LootTable.Builder builder = LootTable.lootTable();
-        LootPool.Builder pool     = LootPool.lootPool();
-        pool.setRolls(ConstantValue.exactly(1)).add(LootItem.lootTableItem(block))
-          .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-            .setProperties(StatePropertiesPredicate.Builder.properties()
-              .hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
-            ));
-        table.add(block, builder.withPool(pool));
-      })
-      .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-      .tag(BlockTags.DOORS)
-      .item().tag(ItemTags.DOORS)
-      .model((ctx,prov)->BlockStateGenerator.doorItem(reg, metal, ctx, prov))
-      .properties(props -> (metal.contains("Netherite") ? props.fireResistant() : props))
-      .build();
+    // Locked doors use GOLD BlockSetType (requires redstone), normal doors use OPEN_METAL_DOOR
+    BlockSetType setType = locked ? BlockSetType.GOLD : OPEN_METAL_DOOR;
+
+    DoorBlock door = new DoorBlock(
+      setType,
+      AbstractBlock.Settings.copy(Blocks.IRON_DOOR)
+        .nonOpaque()
+        .strength(5.0f, 5.0f)
+        .requiresTool()
+        .sounds(BlockSoundGroup.NETHERITE)
+    );
+
+    Block registered = Registry.register(
+      Registries.BLOCK,
+      Identifier.of("createdeco", regName),
+      door
+    );
+
+    // Register item
+    Item.Settings itemSettings = new Item.Settings();
+    if (metal.contains("Netherite")) {
+      itemSettings.fireproof();
+    }
+
+    Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", regName),
+      new BlockItem(registered, itemSettings)
+    );
+
+    // TODO: Create loot table JSON (only drops when LOWER half is broken)
+    // TODO: Create blockstate JSON files for doors
+
+    return registered;
   }
 
-  public static NonNullBiConsumer<DataGenContext<Block, DoorBlock>, RegistrateRecipeProvider> lockedRecipe (
-    Supplier<Item> originalDoor
-  ) {
-    return (ctx,prov)->ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ctx.get())
-      .requires(Items.REDSTONE_TORCH, 1)
-      .requires(originalDoor.get())
-      .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(
-        originalDoor.get()
-      ))
-      .save(prov);
-  }
+  /**
+   * Creates and registers a metal trapdoor.
+   *
+   * @param metal The metal type (e.g., "Copper", "Brass")
+   * @return The registered trapdoor block
+   */
+  public static Block createAndRegisterTrapdoor(String metal) {
+    String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_trapdoor";
 
-  public static BlockBuilder<TrapDoorBlock,?> buildTrapdoor (
-    CreateRegistrate reg, String metal
-  ) {
-    String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_")
-      + "_trapdoor";
-    String path = "block/palettes/doors/" + regName ;
-    ResourceLocation texture = CreateDecoMod.id(path);
+    TrapdoorBlock trapdoor = new TrapdoorBlock(
+      OPEN_METAL_DOOR,
+      AbstractBlock.Settings.create()
+        .nonOpaque()
+        .strength(5.0f, 5.0f)
+        .requiresTool()
+        .sounds(BlockSoundGroup.NETHERITE)
+    );
 
-    return reg.block(regName, p->new TrapDoorBlock(OPEN_METAL_DOOR, p))
-      .properties(props -> props.noOcclusion().strength(5, 5)
-        .requiresCorrectToolForDrops()
-        .sound(SoundType.NETHERITE_BLOCK)
-      )
-      .blockstate((ctx, prov)-> prov.trapdoorBlock(ctx.get(), texture, true))
-      .lang(metal + " Trapdoor")
-      .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-      .tag(BlockTags.TRAPDOORS)
-      .addLayer(()-> RenderType::cutoutMipped)
-      .item().tag(ItemTags.TRAPDOORS)
-      .model((ctx,prov)->BlockStateGenerator.trapdoorItem(reg, metal, ctx, prov))
-      .build();
-  }
+    Block registered = Registry.register(
+      Registries.BLOCK,
+      Identifier.of("createdeco", regName),
+      trapdoor
+    );
 
-  public static NonNullBiConsumer<DataGenContext<Block, TrapDoorBlock>, RegistrateRecipeProvider> trapdoorRecipe (
-    Supplier<Item> ingot
-  ) {
-    return (ctx, prov) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ctx.get())
-      .pattern("mm")
-      .pattern("mm")
-      .define('m', ingot.get())
-      .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(
-        ingot.get()
-      ))
-      .save(prov);
+    // Register item
+    Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", regName),
+      new BlockItem(registered, new Item.Settings())
+    );
+
+    // TODO: Create loot table JSON (simple drop)
+    // TODO: Create blockstate JSON files for trapdoors
+
+    return registered;
   }
 }

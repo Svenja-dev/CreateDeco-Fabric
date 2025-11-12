@@ -59,9 +59,9 @@ public class BlockRegistry {
 
 	public static HashMap<String, Block> WINDOWS      = new HashMap<>();
 	public static HashMap<String, Block> WINDOW_PANES = new HashMap<>();
-	public static HashMap<String, BlockEntry<DoorBlock>> DOORS          = new HashMap<>();
-	public static HashMap<String, BlockEntry<DoorBlock>> LOCK_DOORS     = new HashMap<>();
-	public static HashMap<String, BlockEntry<TrapDoorBlock>> TRAPDOORS  = new HashMap<>();
+	public static HashMap<String, Block> DOORS          = new HashMap<>();
+	public static HashMap<String, Block> LOCK_DOORS     = new HashMap<>();
+	public static HashMap<String, Block> TRAPDOORS  = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> BARS       = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> BAR_PANELS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> MESH_FENCES   = new HashMap<>();
@@ -220,27 +220,27 @@ public class BlockRegistry {
 	// - Pane crafting: 3×2 pattern of windows → 16 panes
 
 	private static void registerDoors (String metal, Function<String, Item> getter) {
-		if (metal.equals("Iron")
-			|| metal.equals("Gold")
-			|| metal.equals("Netherite")) {
-			return;
-		}
-		else if (metal.equals("Copper")) {
-			LOCK_DOORS.put(metal, Doors.build(CreateDecoMod.REGISTRATE, metal, true)
-				.recipe(Doors.lockedRecipe(Blocks.COPPER_DOOR::asItem))
-				.register());
+		// Skip metals that have vanilla doors
+		if (metal.equals("Iron") || metal.equals("Gold") || metal.equals("Netherite")) {
 			return;
 		}
 
-		DOORS.put(metal, Doors.build(CreateDecoMod.REGISTRATE, metal, false)
-				.recipe(Doors.recipe(()->getter.apply("ingot")))
-				.register());
-		LOCK_DOORS.put(metal, Doors.build(CreateDecoMod.REGISTRATE, metal, true)
-				.recipe(Doors.lockedRecipe(()->DOORS.get(metal).asItem()))
-				.register());
-		TRAPDOORS.put(metal, Doors.buildTrapdoor(CreateDecoMod.REGISTRATE, metal)
-				.recipe(Doors.trapdoorRecipe(()->getter.apply("ingot")))
-				.register());
+		// Copper only has locked door (uses vanilla copper_door as base)
+		if (metal.equals("Copper")) {
+			LOCK_DOORS.put(metal, Doors.createAndRegisterDoor(metal, true));
+			// TODO: Create recipe JSON - vanilla copper_door + redstone torch → locked door
+			return;
+		}
+
+		// Other metals get full set: normal door, locked door, trapdoor
+		DOORS.put(metal, Doors.createAndRegisterDoor(metal, false));
+		LOCK_DOORS.put(metal, Doors.createAndRegisterDoor(metal, true));
+		TRAPDOORS.put(metal, Doors.createAndRegisterTrapdoor(metal));
+
+		// TODO: Create recipe JSON files:
+		// - Door crafting: 6 ingots (2×3 pattern) → 3 doors
+		// - Locked door crafting: 1 door + 1 redstone torch → 1 locked door (shapeless)
+		// - Trapdoor crafting: 4 ingots (2×2 pattern) → 1 trapdoor
 	}
 
 	private static void registerHulls (String metal, Function<String, Item> getter) {

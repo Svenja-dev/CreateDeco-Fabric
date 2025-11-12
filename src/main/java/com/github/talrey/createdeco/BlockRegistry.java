@@ -67,9 +67,9 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block> MESH_FENCES   = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> SHEET_METAL_PILLARS = new HashMap<>();
 
-	public static HashMap<String, BlockEntry<CatwalkBlock>> CATWALKS                = new HashMap<>();
-	public static HashMap<String, BlockEntry<CatwalkStairBlock>> CATWALK_STAIRS     = new HashMap<>();
-	public static HashMap<String, BlockEntry<CatwalkRailingBlock>> CATWALK_RAILINGS = new HashMap<>();
+	public static HashMap<String, Block> CATWALKS                = new HashMap<>();
+	public static HashMap<String, Block> CATWALK_STAIRS     = new HashMap<>();
+	public static HashMap<String, Block> CATWALK_RAILINGS = new HashMap<>();
 
 	public static HashMap<String, net.minecraft.block.Block> LADDERS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> HULLS          = new HashMap<>();
@@ -166,26 +166,18 @@ public class BlockRegistry {
 	}
 
 	private static void registerCatwalks (String metal, Function<String, Item> getter) {
-		//String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_");
-		CATWALKS.put(metal, Catwalks.build(
-						CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Catwalks.recipeCatwalk(metal, metal.equals("Iron") ? Items.IRON_BARS : BARS.get(metal), ctx, prov);
-					Catwalks.recipeStonecutting(()->getter.apply("ingot"), ctx, prov, 4);
-				})
-				.register());
-		CATWALK_STAIRS.put(metal, Catwalks.buildStair(
-						CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Catwalks.recipeStairs(metal, metal.equals("Iron") ? Items.IRON_BARS : BARS.get(metal), ctx, prov);
-					Catwalks.recipeStonecutting(()->getter.apply("ingot"), ctx, prov, 2);
-				}).register());
-		CATWALK_RAILINGS.put(metal, Catwalks.buildRailing(
-						CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Catwalks.recipeRailing(metal, metal.equals("Iron") ? Items.IRON_BARS : BARS.get(metal), ctx, prov);
-					Catwalks.recipeStonecutting(()->getter.apply("ingot"), ctx, prov, 8);
-				}).register());
+		// Register catwalks using factory pattern
+		CATWALKS.put(metal, Catwalks.createAndRegisterCatwalk(metal));
+		CATWALK_STAIRS.put(metal, Catwalks.createAndRegisterCatwalkStair(metal));
+		CATWALK_RAILINGS.put(metal, Catwalks.createAndRegisterCatwalkRailing(metal));
+
+		// TODO: Create recipe JSON files:
+		// - Catwalk crafting: 4 plates + 1 bar in cross pattern → 4 catwalks
+		// - Catwalk stonecutting: 1 ingot → 4 catwalks
+		// - Stair crafting: 1 catwalk + 1 bar → 2 stairs
+		// - Stair stonecutting: 1 ingot → 2 stairs
+		// - Railing crafting: 3 plates + 4 bars in fence pattern → 8 railings
+		// - Railing stonecutting: 1 ingot → 8 railings
 		// Register support wedge using vanilla registry API
 		WEDGES.put(metal, Wedges.createAndRegister(metal));
 

@@ -57,8 +57,8 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block>  GREEN_CAGE_LAMPS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block>   BLUE_CAGE_LAMPS = new HashMap<>();
 
-	public static HashMap<String, BlockEntry<WindowBlock>> WINDOWS      = new HashMap<>();
-	public static HashMap<String, BlockEntry<WindowBlock>> WINDOW_PANES = new HashMap<>();
+	public static HashMap<String, Block> WINDOWS      = new HashMap<>();
+	public static HashMap<String, Block> WINDOW_PANES = new HashMap<>();
 	public static HashMap<String, BlockEntry<DoorBlock>> DOORS          = new HashMap<>();
 	public static HashMap<String, BlockEntry<DoorBlock>> LOCK_DOORS     = new HashMap<>();
 	public static HashMap<String, BlockEntry<TrapDoorBlock>> TRAPDOORS  = new HashMap<>();
@@ -199,21 +199,25 @@ public class BlockRegistry {
 		// Crafting: 4 plates in 2x2 pattern → 4 sheet metal blocks
 	}
 
-	public static final BlockEntry<WindowBlock>
-			ANDESITE_WINDOW = Windows.metalWindowBlock("Andesite"),
-			COPPER_WINDOW = Windows.metalWindowBlock("Copper"),
-			IRON_WINDOW = Windows.metalWindowBlock("Iron"),
-			INDUSTRIAL_IRON_WINDOW = Windows.metalWindowBlock("Industrial Iron"),
-			BRASS_WINDOW = Windows.metalWindowBlock("Brass"),
-			ZINC_WINDOW = Windows.metalWindowBlock("Zinc");
+	public static final Block
+			ANDESITE_WINDOW = Windows.createAndRegisterWindow("Andesite"),
+			COPPER_WINDOW = Windows.createAndRegisterWindow("Copper"),
+			IRON_WINDOW = Windows.createAndRegisterWindow("Iron"),
+			INDUSTRIAL_IRON_WINDOW = Windows.createAndRegisterWindow("Industrial Iron"),
+			BRASS_WINDOW = Windows.createAndRegisterWindow("Brass"),
+			ZINC_WINDOW = Windows.createAndRegisterWindow("Zinc");
 
-	public static final BlockEntry<ConnectedGlassPaneBlock>
-			ANDESITE_WINDOW_PANE = Windows.metalWindowPane("Andesite", ANDESITE_WINDOW),
-			COPPER_WINDOW_PANE = Windows.metalWindowPane("Copper", COPPER_WINDOW),
-			IRON_WINDOW_PANE = Windows.metalWindowPane("Iron", IRON_WINDOW),
-			INDUSTRIAL_IRON_WINDOW_PANE = Windows.metalWindowPane("Industrial Iron", INDUSTRIAL_IRON_WINDOW),
-			BRASS_WINDOW_PANE = Windows.metalWindowPane("Brass", BRASS_WINDOW),
-			ZINC_WINDOW_PANE = Windows.metalWindowPane("Zinc", ZINC_WINDOW);
+	public static final Block
+			ANDESITE_WINDOW_PANE = Windows.createAndRegisterWindowPane("Andesite", ANDESITE_WINDOW),
+			COPPER_WINDOW_PANE = Windows.createAndRegisterWindowPane("Copper", COPPER_WINDOW),
+			IRON_WINDOW_PANE = Windows.createAndRegisterWindowPane("Iron", IRON_WINDOW),
+			INDUSTRIAL_IRON_WINDOW_PANE = Windows.createAndRegisterWindowPane("Industrial Iron", INDUSTRIAL_IRON_WINDOW),
+			BRASS_WINDOW_PANE = Windows.createAndRegisterWindowPane("Brass", BRASS_WINDOW),
+			ZINC_WINDOW_PANE = Windows.createAndRegisterWindowPane("Zinc", ZINC_WINDOW);
+
+	// TODO: Create recipe JSON files for windows and panes
+	// - Window crafting: 2 ingots + 1 glass block → 2 windows
+	// - Pane crafting: 3×2 pattern of windows → 16 panes
 
 	private static void registerDoors (String metal, Function<String, Item> getter) {
 		if (metal.equals("Iron")

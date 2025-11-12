@@ -52,10 +52,10 @@ public class BlockRegistry {
 	public static HashMap<DyeColor, HashMap<String, BlockEntry<WallBlock>>>   WALLS= new HashMap<>();
 
 	public static HashMap<String, BlockEntry<DecalBlock>> DECALS = new HashMap<>();
-	public static HashMap<String, BlockEntry<CageLampBlock>> YELLOW_CAGE_LAMPS = new HashMap<>();
-	public static HashMap<String, BlockEntry<CageLampBlock>>    RED_CAGE_LAMPS = new HashMap<>();
-	public static HashMap<String, BlockEntry<CageLampBlock>>  GREEN_CAGE_LAMPS = new HashMap<>();
-	public static HashMap<String, BlockEntry<CageLampBlock>>   BLUE_CAGE_LAMPS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> YELLOW_CAGE_LAMPS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block>    RED_CAGE_LAMPS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block>  GREEN_CAGE_LAMPS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block>   BLUE_CAGE_LAMPS = new HashMap<>();
 
 	public static HashMap<String, BlockEntry<WindowBlock>> WINDOWS      = new HashMap<>();
 	public static HashMap<String, BlockEntry<WindowBlock>> WINDOW_PANES = new HashMap<>();
@@ -155,32 +155,15 @@ public class BlockRegistry {
 
 
 	private static void registerCageLamps (String metal, Function<String, Item> getter) {
-		ResourceLocation cage = CreateDecoMod.id(
-				"block/palettes/cage_lamp/"
-						+ metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_lamp"
-		);
-		Supplier<Item> material = (metal == "Andesite" ? AllItems.ANDESITE_ALLOY : null);
+		// Register all 4 cage lamp colors using vanilla registry API
+		YELLOW_CAGE_LAMPS.put(metal, CageLamps.createAndRegister(metal, net.minecraft.util.DyeColor.YELLOW));
+		RED_CAGE_LAMPS.put(metal, CageLamps.createAndRegister(metal, net.minecraft.util.DyeColor.RED));
+		GREEN_CAGE_LAMPS.put(metal, CageLamps.createAndRegister(metal, net.minecraft.util.DyeColor.GREEN));
+		BLUE_CAGE_LAMPS.put(metal, CageLamps.createAndRegister(metal, net.minecraft.util.DyeColor.BLUE));
 
-		YELLOW_CAGE_LAMPS.put(metal, CageLamps.build(
-						CreateDecoMod.REGISTRATE, metal, DyeColor.YELLOW, cage, YELLOW_ON, YELLOW_OFF
-				)
-				.recipe(CageLamps.recipe(metal, ()-> Items.TORCH, material))
-				.register());
-		RED_CAGE_LAMPS.put(metal, CageLamps.build(
-						CreateDecoMod.REGISTRATE, metal, DyeColor.RED, cage, RED_ON, RED_OFF
-				)
-				.recipe(CageLamps.recipe(metal, ()->Items.REDSTONE_TORCH, material))
-				.register());
-		GREEN_CAGE_LAMPS.put(metal, CageLamps.build(
-						CreateDecoMod.REGISTRATE, metal, DyeColor.GREEN, cage, GREEN_ON, GREEN_OFF
-				)
-				.recipe(CageLamps.recipe(metal, ()->Items.GLOW_BERRIES, material))
-				.register());
-		BLUE_CAGE_LAMPS.put(metal, CageLamps.build(
-						CreateDecoMod.REGISTRATE, metal, DyeColor.BLUE, cage, BLUE_ON, BLUE_OFF
-				)
-				.recipe(CageLamps.recipe(metal, ()->Items.SOUL_TORCH, material))
-				.register());
+		// TODO: Create recipe JSON files for cage lamps
+		// Recipes will be in data/createdeco/recipes/
+		// Pattern: nugget + torch + plate for each variant
 	}
 
 	private static void registerCatwalks (String metal, Function<String, Item> getter) {

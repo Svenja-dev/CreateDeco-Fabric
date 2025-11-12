@@ -1,95 +1,74 @@
 package com.github.talrey.createdeco.api;
 
-import com.github.talrey.createdeco.BlockStateGenerator;
 import com.github.talrey.createdeco.CreateDecoMod;
 import com.github.talrey.createdeco.blocks.CageLampBlock;
-import com.zurrtum.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.builders.BlockBuilder;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 import org.joml.Vector3f;
 
 import java.util.Locale;
-import java.util.function.Supplier;
 
 public class CageLamps {
 
-  public static final ResourceLocation YELLOW_ON  = CreateDecoMod.id( "block/palettes/cage_lamp/light_default");
-  public static final ResourceLocation YELLOW_OFF = CreateDecoMod.id( "block/palettes/cage_lamp/light_default_off");
-  public static final ResourceLocation RED_ON     = CreateDecoMod.id( "block/palettes/cage_lamp/light_redstone");
-  public static final ResourceLocation RED_OFF    = CreateDecoMod.id( "block/palettes/cage_lamp/light_redstone_off");
-  public static final ResourceLocation GREEN_ON   = CreateDecoMod.id( "block/palettes/cage_lamp/light_green");
-  public static final ResourceLocation GREEN_OFF  = CreateDecoMod.id( "block/palettes/cage_lamp/light_green_off");
-  public static final ResourceLocation BLUE_ON    = CreateDecoMod.id( "block/palettes/cage_lamp/light_soul");
-  public static final ResourceLocation BLUE_OFF   = CreateDecoMod.id( "block/palettes/cage_lamp/light_soul_off");
+  public static final Identifier YELLOW_ON  = CreateDecoMod.id( "block/palettes/cage_lamp/light_default");
+  public static final Identifier YELLOW_OFF = CreateDecoMod.id( "block/palettes/cage_lamp/light_default_off");
+  public static final Identifier RED_ON     = CreateDecoMod.id( "block/palettes/cage_lamp/light_redstone");
+  public static final Identifier RED_OFF    = CreateDecoMod.id( "block/palettes/cage_lamp/light_redstone_off");
+  public static final Identifier GREEN_ON   = CreateDecoMod.id( "block/palettes/cage_lamp/light_green");
+  public static final Identifier GREEN_OFF  = CreateDecoMod.id( "block/palettes/cage_lamp/light_green_off");
+  public static final Identifier BLUE_ON    = CreateDecoMod.id( "block/palettes/cage_lamp/light_soul");
+  public static final Identifier BLUE_OFF   = CreateDecoMod.id( "block/palettes/cage_lamp/light_soul_off");
 
-  private static ShapedRecipeBuilder cageLampRecipeBuilder (
-    ItemLike item, Supplier<Item> light
-  ) {
-    return ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, item)
-      .pattern("n")
-      .pattern("t")
-      .pattern("p")
-      .define('t', light.get());
-  }
+  /**
+   * Creates and registers a cage lamp block and its item.
+   *
+   * @param metal Metal type name (e.g. "Brass", "Iron")
+   * @param color DyeColor for the lamp
+   * @return The registered Block
+   */
+  public static Block createAndRegister(String metal, DyeColor color) {
+    String cleanMetal = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_");
+    String colorName = color.getName().toLowerCase(Locale.ROOT);
+    String blockId = colorName + "_" + cleanMetal + "_lamp";
 
-  public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateRecipeProvider> recipe (
-    String metal,
-    Supplier<Item> light
-  ) {
-    return recipe(metal, light, null);
-  }
-
-  public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateRecipeProvider> recipe (
-    String metalName,
-    Supplier<Item> light,
-    @Nullable Supplier<Item> nonstandardMaterial
-  ) {
-    String metal = metalName.toLowerCase(Locale.ROOT).replaceAll(" ", "_");
-    return (ctx, prov) -> {
-      if (nonstandardMaterial != null) {
-        cageLampRecipeBuilder(ctx.get(), light).unlockedBy("has_item",
-            InventoryChangeTrigger.TriggerInstance.hasItems(nonstandardMaterial.get())
-          )
-          .define('n', nonstandardMaterial.get())
-          .define('p', CreateDecoTags.plate(metalName))
-          .save(prov);
-      }
-      else {
-        cageLampRecipeBuilder(ctx.get(), light).unlockedBy("has_item",
-            InventoryChangeTrigger.TriggerInstance.hasItems(
-              ItemPredicate.Builder.item().of(CreateDecoTags.plate(metalName)).build()
-            ))
-          .define('n', CreateDecoTags.nugget(metalName))
-          .define('p', CreateDecoTags.plate(metalName))
-          .save(prov);
-      }
+    // Determine particle color based on dye color
+    Vector3f particleColor = switch (color) {
+      case YELLOW -> new Vector3f(1.0f, 1.0f, 0.0f);      // Yellow
+      case RED -> new Vector3f(1.0f, 0.0f, 0.0f);         // Red
+      case GREEN -> new Vector3f(0.0f, 1.0f, 0.0f);       // Green
+      case BLUE -> new Vector3f(0.0f, 0.5f, 1.0f);        // Soul blue
+      default -> new Vector3f(0.3f, 0.3f, 0.0f);
     };
-  }
 
-  public static BlockBuilder<CageLampBlock, ?> build (
-    CreateRegistrate reg, String name, DyeColor color, ResourceLocation cage, ResourceLocation lampOn, ResourceLocation lampOff
-  ) {
-    return reg.block(color.getName().toLowerCase(Locale.ROOT) + "_" + name.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_lamp",
-        (p)-> new CageLampBlock(p, new Vector3f(0.3f, 0.3f, 0f)))
-      .properties(props-> props.noOcclusion().strength(0.5f).sound(SoundType.LANTERN).lightLevel((state)-> state.getValue(BlockStateProperties.LIT)?15:0))
-      .blockstate((ctx,prov)-> BlockStateGenerator.cageLamp(cage, lampOn, lampOff, ctx, prov))
-      .addLayer(()-> RenderType::cutoutMipped)
-      .lang(color.name().charAt(0) + color.name().substring(1).toLowerCase() + " " + name + " Cage Lamp")
-      .simpleItem();
+    // Register block
+    Block block = Registry.register(
+      Registries.BLOCK,
+      Identifier.of("createdeco", blockId),
+      new CageLampBlock(
+        AbstractBlock.Settings.create()
+          .nonOpaque()
+          .strength(0.5f)
+          .sounds(BlockSoundGroup.LANTERN)
+          .luminance(state -> state.get(Properties.LIT) ? 15 : 0),
+        particleColor
+      )
+    );
+
+    // Register item
+    Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", blockId),
+      new BlockItem(block, new Item.Settings())
+    );
+
+    return block;
   }
 }

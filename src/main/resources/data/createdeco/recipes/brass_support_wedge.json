@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " p",
+    "pp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:brass_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:brass_support_wedge",
+    "count": 3
+  }
+}

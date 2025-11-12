@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " p",
+    "pp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:iron_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:iron_support_wedge",
+    "count": 3
+  }
+}

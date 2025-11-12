@@ -74,7 +74,7 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block> LADDERS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> HULLS          = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> SUPPORTS    = new HashMap<>();
-	public static HashMap<String, BlockEntry<SupportWedgeBlock>> WEDGES = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> WEDGES = new HashMap<>();
 	public static HashMap<String, BlockEntry<FacadeBlock>> FACADES      = new HashMap<>();
 
 	public static HashMap<DyeColor, BlockEntry<? extends PlacardBlock>> PLACARDS = new HashMap<>();
@@ -186,13 +186,12 @@ public class BlockRegistry {
 					Catwalks.recipeRailing(metal, metal.equals("Iron") ? Items.IRON_BARS : BARS.get(metal), ctx, prov);
 					Catwalks.recipeStonecutting(()->getter.apply("ingot"), ctx, prov, 8);
 				}).register());
-		WEDGES.put(metal, Wedges.build(
-						CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-					Wedges.recipe(metal, ctx, prov);
-				})
-				.register());
+		// Register support wedge using vanilla registry API
+		WEDGES.put(metal, Wedges.createAndRegister(metal));
+
+		// TODO: Create recipe JSON files for wedges
+		// Crafting: 3 plates in triangle pattern → 3 wedges
+		// Stonecutting: 1 ingot → 4 bars
 //		FACADES.put(metal, Facades.build(CreateDecoMod.REGISTRATE, metal)
 //				.recipe( (ctx, prov)-> {
 //					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);

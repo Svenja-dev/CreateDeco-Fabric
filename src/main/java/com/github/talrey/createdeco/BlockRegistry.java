@@ -71,7 +71,7 @@ public class BlockRegistry {
 	public static HashMap<String, BlockEntry<CatwalkStairBlock>> CATWALK_STAIRS     = new HashMap<>();
 	public static HashMap<String, BlockEntry<CatwalkRailingBlock>> CATWALK_RAILINGS = new HashMap<>();
 
-	public static HashMap<String, BlockEntry<MetalLadderBlock>> LADDERS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> LADDERS = new HashMap<>();
 	public static HashMap<String, BlockEntry<HullBlock>> HULLS          = new HashMap<>();
 	public static HashMap<String, BlockEntry<SupportBlock>> SUPPORTS    = new HashMap<>();
 	public static HashMap<String, BlockEntry<SupportWedgeBlock>> WEDGES = new HashMap<>();
@@ -259,14 +259,14 @@ public class BlockRegistry {
 	}
 
 	private static void registerLadders (String metal, Function<String, Item> getter) {
+		// Skip metals that don't have ladders (Copper, Andesite, Brass)
 		if (metal.contains("opper") || metal.contains("ndesite") || metal.contains("rass")) return;
 
-		LADDERS.put(metal, Ladders.build(CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					Ladders.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-				})
-				.register()
-		);
+		// Register ladder using vanilla registry API
+		LADDERS.put(metal, Ladders.createAndRegister(metal));
+
+		// TODO: Create recipe JSON file for ladder
+		// Stonecutting: 1 ingot → 2 ladders
 	}
 
 	private static void registerSupports (String metal, Function<String, Item> getter) {

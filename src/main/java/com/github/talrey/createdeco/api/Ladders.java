@@ -1,57 +1,46 @@
 package com.github.talrey.createdeco.api;
 
-import com.github.talrey.createdeco.BlockStateGenerator;
 import com.zurrtum.create.content.decoration.MetalLadderBlock;
-import com.zurrtum.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.builders.BlockBuilder;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.SingleItemRecipeBuilder;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.Identifier;
 
 import java.util.Locale;
-import java.util.function.Supplier;
 
 public class Ladders {
-  public static BlockBuilder<MetalLadderBlock,?> build (
-      CreateRegistrate reg, String metal
-  ) {
-    String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_");
+  /**
+   * Creates and registers a metal ladder block and its item.
+   * Uses Create-Fly's MetalLadderBlock class.
+   *
+   * @param metal Metal type name (e.g. "Zinc", "Iron")
+   * @return The registered Block
+   */
+  public static Block createAndRegister(String metal) {
+    String blockId = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_ladder";
 
+    // Register block (using Create-Fly's MetalLadderBlock)
+    Block block = Registry.register(
+      Registries.BLOCK,
+      Identifier.of("createdeco", blockId),
+      new MetalLadderBlock(
+        AbstractBlock.Settings.copy(Blocks.LADDER)
+          .sounds(BlockSoundGroup.COPPER)
+      )
+    );
 
-    return reg.block(regName + "_ladder", MetalLadderBlock::new)
-        .initialProperties(() -> Blocks.LADDER)
-        .addLayer(() -> RenderType::cutout)
-        .blockstate((ctx, prov)-> BlockStateGenerator.ladder(ctx,prov,regName)
-        )
-        .properties(p -> p.sound(SoundType.COPPER))
-        .tag(BlockTags.CLIMBABLE)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .lang(metal + " Ladder")
-        .item()
-        .model((ctx, prov) -> prov.blockSprite(ctx::get, prov.modLoc("block/palettes/ladders/ladder_" + regName)))
-        //.model((c, p) -> p.blockSprite(c::get, p.modLoc("block/ladder_" + regName)))
-        .build();
-  }
+    // Register item
+    Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", blockId),
+      new BlockItem(block, new Item.Settings())
+    );
 
-
-  public static <T extends Block> void recipeStonecutting (
-      Supplier<Item> ingot, DataGenContext<Block, T> ctx, RegistrateRecipeProvider prov
-  ) {
-    SingleItemRecipeBuilder.stonecutting(Ingredient.of(ingot.get()), RecipeCategory.DECORATIONS, ctx.get(), 2)
-        .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(
-            ItemPredicate.Builder.item().of(ingot.get()).build()
-        ))
-        .save(prov, ctx.getName() + "_from_stonecutting");
-
+    return block;
   }
 }

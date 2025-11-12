@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "psp",
+    "psp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:industrial_iron_plates"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "item": "createdeco:industrial_iron_mesh_fence",
+    "count": 16
+  }
+}

@@ -1,33 +1,41 @@
 package com.github.talrey.createdeco.blocks;
 
 import com.zurrtum.create.content.equipment.wrench.IWrenchable;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FenceBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FenceBlock;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.world.World;
 
 public class MeshFenceBlock extends FenceBlock implements IWrenchable {
-    public static final BooleanProperty UP = BlockStateProperties.UP;
+    public static final BooleanProperty UP = Properties.UP;
 
-    public MeshFenceBlock(Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(UP, false).setValue(NORTH, false).setValue(EAST, false).setValue(SOUTH, false).setValue(WEST, false).setValue(WATERLOGGED, false));
+    public MeshFenceBlock(Settings settings) {
+        super(settings);
+        this.setDefaultState(this.getDefaultState()
+            .with(UP, false)
+            .with(NORTH, false)
+            .with(EAST, false)
+            .with(SOUTH, false)
+            .with(WEST, false)
+            .with(WATERLOGGED, false));
     }
 
-    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        Level level = context.getLevel();
+    public ActionResult onWrenched(BlockState state, ItemUsageContext context) {
+        World world = context.getWorld();
 
-        level.setBlockAndUpdate(context.getClickedPos(), state.setValue(UP, !state.getValue(UP)));
-        IWrenchable.playRotateSound(level, context.getClickedPos());
+        world.setBlockState(context.getBlockPos(), state.with(UP, !state.get(UP)));
+        IWrenchable.playRotateSound(world, context.getBlockPos());
 
-        return InteractionResult.SUCCESS;
+        return ActionResult.SUCCESS;
     }
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(UP, NORTH, EAST, WEST, SOUTH, WATERLOGGED);
     }
 }

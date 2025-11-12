@@ -64,7 +64,7 @@ public class BlockRegistry {
 	public static HashMap<String, BlockEntry<TrapDoorBlock>> TRAPDOORS  = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> BARS       = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> BAR_PANELS = new HashMap<>();
-	public static HashMap<String, BlockEntry<MeshFenceBlock>> MESH_FENCES   = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> MESH_FENCES   = new HashMap<>();
 	public static HashMap<String, BlockEntry<ConnectedPillarBlock>> SHEET_METAL_PILLARS = new HashMap<>();
 
 	public static HashMap<String, BlockEntry<CatwalkBlock>> CATWALKS                = new HashMap<>();
@@ -135,11 +135,12 @@ public class BlockRegistry {
 	}
 
 	private static void registerFences (String metal, Function<String, Item> getter) {
-		MESH_FENCES.put(metal, MeshFences.build(CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					MeshFences.fenceRecipe(metal, ctx, prov);
-					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-				}).register());
+		// Register mesh fence using vanilla registry API
+		MESH_FENCES.put(metal, MeshFences.createAndRegister(metal));
+
+		// TODO: Create recipe JSON files for mesh fences
+		// Pattern: plate + string + plate (2 rows) → 16 fences
+		// Also stonecutting: ingot → 4 fences
 	}
 
 	private static void registerDecals () {

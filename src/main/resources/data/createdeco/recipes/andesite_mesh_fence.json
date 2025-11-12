@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "psp",
+    "psp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:andesite_plates"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "item": "createdeco:andesite_mesh_fence",
+    "count": 16
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "psp",
+    "psp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:brass_plates"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "item": "createdeco:brass_mesh_fence",
+    "count": 16
+  }
+}

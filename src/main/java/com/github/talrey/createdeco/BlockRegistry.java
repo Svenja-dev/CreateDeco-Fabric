@@ -80,7 +80,7 @@ public class BlockRegistry {
 	public static HashMap<DyeColor, BlockEntry<? extends PlacardBlock>> PLACARDS = new HashMap<>();
 	public static BlockEntityEntry<DyedPlacardBlock.Entity> PLACARD_ENTITIES;
 
-	public static HashMap<String, BlockEntry<CoinStackBlock>> COIN_BLOCKS  = new HashMap<>();
+	public static HashMap<String, Block> COIN_BLOCKS  = new HashMap<>();
 
 	public static HashMap<DyeColor, BlockEntry<ShippingContainerBlock>> SHIPPING_CONTAINERS = new HashMap<>();
 	public static HashMap<DyeColor, BlockEntityEntry<ShippingContainerBlock.Entity>> CONTAINER_ENTITIES = new HashMap<>();
@@ -338,16 +338,12 @@ public class BlockRegistry {
 
 	private static void registerCoins (String metal, Function<String, Item> getter) {
 		if (metal.equals("Andesite")) return;
-		String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_");
-		ResourceLocation side   = CreateDecoMod.id("block/" + regName + "_coinstack_side");
-		ResourceLocation top    = CreateDecoMod.id("block/" + regName + "_coinstack_top");
-		ResourceLocation bottom = CreateDecoMod.id("block/" + regName + "_coinstack_bottom");
 
-		COIN_BLOCKS.put(metal, Coins.buildCoinStackBlock(
-				CreateDecoMod.REGISTRATE,
-				()-> ItemRegistry.COINSTACKS.get(metal).get(),
-				metal, side, bottom, top
-		).register());
+		// Register coinstack block using factory
+		COIN_BLOCKS.put(metal, Coins.registerCoinStackBlock(metal));
+
+		// TODO: Create blockstate JSON files for coinstack blocks (8 layer variants)
+		// TODO: Create loot table JSON with conditional drops (1-8 items based on LAYERS)
 	}
 
 	private static void registerBricks () {

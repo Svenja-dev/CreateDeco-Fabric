@@ -25,8 +25,8 @@ public class ItemRegistry {
   public static HashMap<String, Function<String, Item>> METAL_TYPES = new HashMap<>();
   public static HashMap<String, Function<String, Item>> COIN_METALS = new HashMap<>();
 
-  public static HashMap<String, ItemEntry<Item>> COINS = new HashMap<>();
-  public static HashMap<String, ItemEntry<CoinStackItem>> COINSTACKS = new HashMap<>();
+  public static HashMap<String, Item> COINS = new HashMap<>();
+  public static HashMap<String, Item> COINSTACKS = new HashMap<>();
 
   public static void init () {
     CreateDecoMod.LOGGER.info("Registering items for " + CreateDecoMod.NAME);
@@ -104,13 +104,12 @@ public class ItemRegistry {
   private static void registerCoins (String metal, Function<String, Item> getter) {
     if (metal.equals("Andesite")) return;
 
-    COINS.put(metal, Coins.buildCoinItem(CreateDecoMod.REGISTRATE,
-      () -> COINSTACKS.get(metal).get(), metal)
-      .register()
-    );
-    COINSTACKS.put(metal, Coins.buildCoinStackItem(CreateDecoMod.REGISTRATE,
-      () -> COINS.get(metal).get(), metal)
-      .register()
-    );
+    // Register coin items and coinstack items using factory
+    COINS.put(metal, Coins.registerCoinItem(metal));
+    COINSTACKS.put(metal, Coins.registerCoinStackItem(metal));
+
+    // TODO: Create recipe JSON files:
+    // - 1 coinstack item → 4 coin items (shapeless)
+    // - 4 coin items → 1 coinstack item (shapeless)
   }
 }

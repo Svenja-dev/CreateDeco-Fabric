@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:iron_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:iron_bars_overlay",
+    "count": 16
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:andesite_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:andesite_bars_overlay",
+    "count": 16
+  }
+}

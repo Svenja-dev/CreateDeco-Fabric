@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iii",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "create:andesite_alloy"
+    }
+  },
+  "result": {
+    "item": "createdeco:andesite_bars",
+    "count": 16
+  }
+}

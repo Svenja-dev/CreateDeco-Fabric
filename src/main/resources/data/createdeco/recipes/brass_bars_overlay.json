@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:brass_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:brass_bars_overlay",
+    "count": 16
+  }
+}

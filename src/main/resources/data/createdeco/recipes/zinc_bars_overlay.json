@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:zinc_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:zinc_bars_overlay",
+    "count": 16
+  }
+}

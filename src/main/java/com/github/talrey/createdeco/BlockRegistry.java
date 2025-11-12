@@ -75,7 +75,7 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block> HULLS          = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> SUPPORTS    = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> WEDGES = new HashMap<>();
-	public static HashMap<String, BlockEntry<FacadeBlock>> FACADES      = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> FACADES      = new HashMap<>();
 
 	public static HashMap<DyeColor, BlockEntry<? extends PlacardBlock>> PLACARDS = new HashMap<>();
 	public static BlockEntityEntry<DyedPlacardBlock.Entity> PLACARD_ENTITIES;
@@ -192,11 +192,11 @@ public class BlockRegistry {
 		// TODO: Create recipe JSON files for wedges
 		// Crafting: 3 plates in triangle pattern → 3 wedges
 		// Stonecutting: 1 ingot → 4 bars
-//		FACADES.put(metal, Facades.build(CreateDecoMod.REGISTRATE, metal)
-//				.recipe( (ctx, prov)-> {
-//					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-//				})
-//				.register());
+		// Register facade using vanilla registry API
+		FACADES.put(metal, Facades.createAndRegister(metal));
+
+		// TODO: Create recipe JSON file for facades
+		// Stonecutting: 1 ingot → 4 facades
 	}
 
 	private static void registerSheetMetal (String metal, Function<String, Item> getter) {

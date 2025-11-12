@@ -1,34 +1,48 @@
 package com.github.talrey.createdeco.api;
 
-import com.github.talrey.createdeco.BlockStateGenerator;
 import com.github.talrey.createdeco.blocks.FacadeBlock;
-import com.zurrtum.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.builders.BlockBuilder;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.Identifier;
 
 import java.util.Locale;
 
 public class Facades {
-  public static BlockBuilder<FacadeBlock,?> build (
-    CreateRegistrate reg, String metal
-  ) {
-    String regName = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_facade";
+  /**
+   * Creates and registers a facade block and its item.
+   * Facades are multiface blocks that can be placed on multiple sides.
+   *
+   * @param metal Metal type name (e.g. "Brass", "Zinc")
+   * @return The registered Block
+   */
+  public static Block createAndRegister(String metal) {
+    String blockId = metal.toLowerCase(Locale.ROOT).replaceAll(" ", "_") + "_facade";
 
-    return reg.block(regName, FacadeBlock::new)
-      .properties(props -> props.strength(5, 6)
-        .requiresCorrectToolForDrops()
-        .sound(SoundType.NETHERITE_BLOCK)
-        .noOcclusion()
-        .isViewBlocking((a, b, c) -> false)
-        .isSuffocating((a, b, c) -> false)
+    // Register block
+    Block block = Registry.register(
+      Registries.BLOCK,
+      Identifier.of("createdeco", blockId),
+      new FacadeBlock(
+        AbstractBlock.Settings.create()
+          .strength(5.0f, 6.0f)
+          .requiresTool()
+          .sounds(BlockSoundGroup.NETHERITE)
+          .nonOpaque()
       )
-      .addLayer(() -> RenderType::translucent)
-      .item()
-      .build()
-      .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-      .blockstate((ctx, prov) -> BlockStateGenerator.facade(reg, metal, ctx, prov))
-      .lang(metal + " Facade");
+    );
+
+    // Register item
+    Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", blockId),
+      new BlockItem(block, new Item.Settings())
+    );
+
+    return block;
   }
 }

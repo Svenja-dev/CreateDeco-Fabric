@@ -62,8 +62,8 @@ public class BlockRegistry {
 	public static HashMap<String, BlockEntry<DoorBlock>> DOORS          = new HashMap<>();
 	public static HashMap<String, BlockEntry<DoorBlock>> LOCK_DOORS     = new HashMap<>();
 	public static HashMap<String, BlockEntry<TrapDoorBlock>> TRAPDOORS  = new HashMap<>();
-	public static HashMap<String, BlockEntry<IronBarsBlock>> BARS       = new HashMap<>();
-	public static HashMap<String, BlockEntry<IronBarsBlock>> BAR_PANELS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> BARS       = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> BAR_PANELS = new HashMap<>();
 	public static HashMap<String, BlockEntry<MeshFenceBlock>> MESH_FENCES   = new HashMap<>();
 	public static HashMap<String, BlockEntry<ConnectedPillarBlock>> SHEET_METAL_PILLARS = new HashMap<>();
 
@@ -119,21 +119,19 @@ public class BlockRegistry {
 	}
 
 	private static void registerBars (String metal, Function<String, Item> getter) {
-		boolean postFlag = (metal.contains("Netherite")|| metal.contains("Industrial Iron"));
+		// Register bar panels (overlay variant) for all metals
+		BAR_PANELS.put(metal, Bars.createAndRegisterPanel(metal));
 
-		BAR_PANELS.put(metal, Bars.build(CreateDecoMod.REGISTRATE, metal, "overlay", postFlag)
-				.recipe( (ctx, prov)-> {
-					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-					Bars.recipeCraftingPanels(metal, ctx, prov);
-				}).register());
-
+		// Skip regular bars for Iron (vanilla already has iron_bars)
 		if (metal.equals("Iron")) return;
 
-		BARS.put(metal, Bars.build(CreateDecoMod.REGISTRATE, metal, "", postFlag)
-				.recipe( (ctx, prov)-> {
-					Bars.recipeStonecutting(()->getter.apply("ingot"), ctx, prov);
-					Bars.recipeCrafting(()->getter.apply("ingot"), ctx, prov);
-				}).register());
+		// Register regular bars for non-Iron metals
+		BARS.put(metal, Bars.createAndRegisterBar(metal));
+
+		// TODO: Create recipe JSON files for bars
+		// - Stonecutting: ingot -> 4 bars
+		// - Crafting: 6 ingots (2x3) -> 16 bars
+		// - Panels: 6 plates (2x3) -> 16 bar panels
 	}
 
 	private static void registerFences (String metal, Function<String, Item> getter) {

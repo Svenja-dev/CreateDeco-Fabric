@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "n",
+    "t",
+    "p"
+  ],
+  "key": {
+    "n": {
+      "tag": "c:iron_nuggets"
+    },
+    "t": {
+      "item": "minecraft:soul_torch"
+    },
+    "p": {
+      "tag": "c:iron_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:blue_iron_lamp"
+  }
+}

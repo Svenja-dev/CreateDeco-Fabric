@@ -6,17 +6,17 @@ import net.createmod.catnip.placement.IPlacementHelper;
 import net.createmod.catnip.placement.PlacementHelpers;
 import net.createmod.catnip.placement.PlacementOffset;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import net.minecraft.world.RaycastContext;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -30,20 +30,20 @@ public class CatwalkStairBlockItem extends BlockItem {
   }
 
   @Override
-  public InteractionResult useOn (UseOnContext ctx) {
-    BlockPos pos   = ctx.getClickedPos();
-    Direction face = ctx.getClickedFace();
-    Level world    = ctx.getLevel();
-    Player player  = ctx.getPlayer();
+  public ActionResult useOnBlock (ItemUsageContext ctx) {
+    BlockPos pos   = ctx.getBlockPos();
+    Direction face = ctx.getSide();
+    World world    = ctx.getWorld();
+    PlayerEntity player  = ctx.getPlayer();
 
     BlockState state        = world.getBlockState(pos);
     IPlacementHelper helper = PlacementHelpers.get(placementHelperID);
-    BlockHitResult ray = new BlockHitResult(ctx.getClickLocation(), face, pos, true);
-    if (helper.matchesState(state) && player != null && !player.isShiftKeyDown()) {
+    BlockHitResult ray = new BlockHitResult(ctx.getHitPos(), face, pos, true);
+    if (helper.matchesState(state) && player != null && !player.isSneaking()) {
       return helper.getOffset(player, world, state, pos, ray)
         .placeInWorld(world, this, player, ctx.getHand(), ray).result();
     }
-    return super.useOn(ctx);
+    return super.useOnBlock(ctx);
   }
 
   @MethodsReturnNonnullByDefault
@@ -59,27 +59,27 @@ public class CatwalkStairBlockItem extends BlockItem {
     }
 
     @Override
-    public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos, BlockHitResult ray) {
+    public PlacementOffset getOffset(PlayerEntity player, World world, BlockState state, BlockPos pos, BlockHitResult ray) {
 //      if (face.getAxis() != Direction.Axis.Y) {
-//        return PlacementOffset.success(pos.offset(face.getNormal()), offsetState -> offsetState);
+//        return PlacementOffset.success(pos.offset(face.getVector()), offsetState -> offsetState);
 //      }
       List<Direction> dirs = IPlacementHelper.orderedByDistanceExceptAxis(pos, ray.getLocation(), Direction.Axis.Y);
       for (Direction dir : dirs) {
         Direction facing;
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-          facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        if (state.contains(Properties.HORIZONTAL_FACING)) {
+          facing = state.get(Properties.HORIZONTAL_FACING);
           if (dir.getOpposite() != facing) continue;
         }
         else facing = dir.getOpposite();
 
-        BlockPos newPos = pos.relative(dir).offset(0, 1, 0);
+        BlockPos newPos = pos.offset(dir).offset(0, 1, 0);
         if (!CatwalkBlock.canPlaceCatwalk(world, newPos)) continue;
 
         return PlacementOffset.success(newPos,
           offsetState -> {
           // not entirely sure why this is necessary tbh, but if it prevents crashes aight then.
-            if (offsetState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-              offsetState = offsetState.setValue(BlockStateProperties.HORIZONTAL_FACING, facing);
+            if (offsetState.contains(Properties.HORIZONTAL_FACING)) {
+              offsetState = offsetState.with(Properties.HORIZONTAL_FACING, facing);
             }
             return offsetState;
           }

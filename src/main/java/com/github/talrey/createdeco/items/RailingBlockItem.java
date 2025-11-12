@@ -7,19 +7,19 @@ import net.createmod.catnip.placement.IPlacementHelper;
 import net.createmod.catnip.placement.PlacementHelpers;
 import net.createmod.catnip.placement.PlacementOffset;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.world.event.GameEvent;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -33,26 +33,26 @@ public class RailingBlockItem extends BlockItem {
   }
 
   @Override
-  public InteractionResult useOn (UseOnContext ctx) {
-    BlockPos pos    = ctx.getClickedPos();
-    Direction face  = ctx.getClickedFace();
-    Level level     = ctx.getLevel();
-    Player player   = ctx.getPlayer();
-    ItemStack stack = ctx.getItemInHand();
+  public ActionResult useOnBlock (ItemUsageContext ctx) {
+    BlockPos pos    = ctx.getBlockPos();
+    Direction face  = ctx.getSide();
+    World level     = ctx.getWorld();
+    PlayerEntity player   = ctx.getPlayer();
+    ItemStack stack = ctx.getStack();
 
     BlockState state        = level.getBlockState(pos);
     IPlacementHelper helper = PlacementHelpers.get(placementHelperID);
-    BlockHitResult ray = new BlockHitResult(ctx.getClickLocation(), face, pos, true);
+    BlockHitResult ray = new BlockHitResult(ctx.getHitPos(), face, pos, true);
 
-    if (player == null) return InteractionResult.PASS;
+    if (player == null) return ActionResult.PASS;
 
     if (state.getBlock() instanceof CatwalkStairBlock catstair
-     && this.getBlock().equals(BlockRegistry.CATWALK_RAILINGS.get(catstair.metal).get())
+     && this.getBlock().equals(BlockRegistry.CATWALK_RAILINGS.get(catstair.metal))
     ) {
       // ADD `if ([stack != state]) return;` CHECK
-      var dir = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-      var xPos = ctx.getClickLocation().x - (double) pos.getX() - 0.5;
-      var zPos = ctx.getClickLocation().z - (double) pos.getZ() - 0.5;
+      var dir = state.get(Properties.HORIZONTAL_FACING);
+      var xPos = ctx.getHitPos().x - (double) pos.getX() - 0.5;
+      var zPos = ctx.getHitPos().z - (double) pos.getZ() - 0.5;
       boolean left = false;
 
       if (dir == Direction.NORTH) left = xPos > 0;
@@ -61,15 +61,15 @@ public class RailingBlockItem extends BlockItem {
       if (dir == Direction.WEST) left = zPos < 0;
 
 
-      if (state.getValue(left ? CatwalkStairBlock.RAILING_LEFT : CatwalkStairBlock.RAILING_RIGHT)) return InteractionResult.PASS;
+      if (state.get(left ? CatwalkStairBlock.RAILING_LEFT : CatwalkStairBlock.RAILING_RIGHT)) return ActionResult.PASS;
       var soundType = state.getSoundType();
-      level.setBlock(pos, state.setValue(left ? CatwalkStairBlock.RAILING_LEFT : CatwalkStairBlock.RAILING_RIGHT, true), 3);
-      level.playSound(player, pos, this.getPlaceSound(state), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-      level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, state));
-      if (!player.getAbilities().instabuild) {
-        stack.shrink(1);
+      level.setBlockState(pos, state.with(left ? CatwalkStairBlock.RAILING_LEFT : CatwalkStairBlock.RAILING_RIGHT, true), 3);
+      level.playSound(player, pos, this.getPlaceSound(state), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+      level.emitGameEvent(player, GameEvent.BLOCK_PLACE, pos);
+      if (!player.getAbilities().creativeMode) {
+        stack.decrement(1);
       }
-      return InteractionResult.SUCCESS;
+      return ActionResult.SUCCESS;
     }
 
     PlacementOffset offset = null;
@@ -78,22 +78,22 @@ public class RailingBlockItem extends BlockItem {
       //return offset.placeInWorld(world, this, player, ctx.getHand(), ray);
     }
 
-    if (offset != null && offset.isSuccessful() && !player.isShiftKeyDown() //&& railMatchTest
+    if (offset != null && offset.isSuccessful() && !player.isSneaking() //&& railMatchTest
     ) {
       state = offset.getGhostState(); //level.getBlockState(offset.getBlockPos());
       var offsetPos = offset.getBlockPos();
       var soundType = state.getSoundType();
 
-      level.setBlock(offsetPos, offset.getTransform().apply(state), 3);
-      level.playSound(player, offsetPos, this.getPlaceSound(state), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-      level.gameEvent(GameEvent.BLOCK_PLACE, offsetPos, GameEvent.Context.of(player, state));
-      if (!player.getAbilities().instabuild) {
-        stack.shrink(1);
+      level.setBlockState(offsetPos, offset.getTransform().apply(state), 3);
+      level.playSound(player, offsetPos, this.getPlaceSound(state), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+      level.emitGameEvent(player, GameEvent.BLOCK_PLACE, offsetPos);
+      if (!player.getAbilities().creativeMode) {
+        stack.decrement(1);
       }
-      return InteractionResult.SUCCESS;
+      return ActionResult.SUCCESS;
     }
 
-    return super.useOn(ctx);
+    return super.useOnBlock(ctx);
   }
 
   @MethodsReturnNonnullByDefault
@@ -110,22 +110,22 @@ public class RailingBlockItem extends BlockItem {
 
     @Override
     public PlacementOffset getOffset (
-      Player player, Level world, BlockState state, BlockPos pos, BlockHitResult ray
+      PlayerEntity player, World world, BlockState state, BlockPos pos, BlockHitResult ray
     ) {
       Direction face = ray.getDirection();
-      BlockState adjacent = world.getBlockState(pos.relative(face));
+      BlockState adjacent = world.getBlockState(pos.offset(face));
       if (CatwalkRailingBlock.isRailing(adjacent.getBlock())) {
-        pos = pos.relative(face);
+        pos = pos.offset(face);
         state = adjacent;
       }
 
       boolean railMatchTest = player.isHolding(state.getBlock().asItem());
 
       if (!CatwalkRailingBlock.isRailing(state.getBlock()) ||
-              (state.getValue(CatwalkRailingBlock.NORTH_FENCE)
-              && state.getValue(CatwalkRailingBlock.SOUTH_FENCE)
-              && state.getValue(CatwalkRailingBlock.EAST_FENCE)
-              && state.getValue(CatwalkRailingBlock.WEST_FENCE)) || !railMatchTest) {
+              (state.get(CatwalkRailingBlock.NORTH_FENCE)
+              && state.get(CatwalkRailingBlock.SOUTH_FENCE)
+              && state.get(CatwalkRailingBlock.EAST_FENCE)
+              && state.get(CatwalkRailingBlock.WEST_FENCE)) || !railMatchTest) {
         return PlacementOffset.fail();
       }
 
@@ -133,8 +133,8 @@ public class RailingBlockItem extends BlockItem {
          pos, ray.getLocation(), Direction.Axis.Y
       );
       for (Direction offset : dirs) {
-        if (!state.getValue(CatwalkRailingBlock.fromDirection(offset))) {
-          state = state.setValue(CatwalkRailingBlock.fromDirection(offset), true);
+        if (!state.get(CatwalkRailingBlock.fromDirection(offset))) {
+          state = state.with(CatwalkRailingBlock.fromDirection(offset), true);
           break;
         }
       }

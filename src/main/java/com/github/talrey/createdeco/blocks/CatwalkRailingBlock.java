@@ -2,78 +2,76 @@ package com.github.talrey.createdeco.blocks;
 
 import com.zurrtum.create.content.equipment.wrench.IWrenchable;
 import com.zurrtum.create.foundation.block.ProperWaterloggedBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class CatwalkRailingBlock extends Block implements IWrenchable, ProperWaterloggedBlock {
-  private static final VoxelShape VOXEL_NORTH = Block.box(
+  private static final VoxelShape VOXEL_NORTH = Block.createCuboidShape(
           0d, 0d, 0d,
           16d, 14d, 2d
   );
-  private static final VoxelShape VOXEL_SOUTH = Block.box(
+  private static final VoxelShape VOXEL_SOUTH = Block.createCuboidShape(
           0d, 0d, 14d,
           16d, 14d, 16d
   );
-  private static final VoxelShape VOXEL_EAST = Block.box(
+  private static final VoxelShape VOXEL_EAST = Block.createCuboidShape(
           14d, 0d, 0d,
           16d, 14d, 16d
   );
-  private static final VoxelShape VOXEL_WEST = Block.box(
+  private static final VoxelShape VOXEL_WEST = Block.createCuboidShape(
           0d, 0d, 0d,
           2d, 14d, 16d
   );
 
-  public static final BooleanProperty NORTH_FENCE = BlockStateProperties.NORTH;
-  public static final BooleanProperty SOUTH_FENCE = BlockStateProperties.SOUTH;
-  public static final BooleanProperty EAST_FENCE  = BlockStateProperties.EAST;
-  public static final BooleanProperty WEST_FENCE  = BlockStateProperties.WEST;
+  public static final BooleanProperty NORTH_FENCE = Properties.NORTH;
+  public static final BooleanProperty SOUTH_FENCE = Properties.SOUTH;
+  public static final BooleanProperty EAST_FENCE  = Properties.EAST;
+  public static final BooleanProperty WEST_FENCE  = Properties.WEST;
 
-  public CatwalkRailingBlock (Properties props) {
+  public CatwalkRailingBlock (Settings props) {
     super(props);
-    this.registerDefaultState(this.defaultBlockState()
-            .setValue(NORTH_FENCE, false)
-            .setValue(SOUTH_FENCE, false)
-            .setValue(EAST_FENCE,  false)
-            .setValue(WEST_FENCE,  false)
-            .setValue(BlockStateProperties.WATERLOGGED, false)
+    this.setDefaultState(this.getDefaultState()
+            .with(NORTH_FENCE, false)
+            .with(SOUTH_FENCE, false)
+            .with(EAST_FENCE,  false)
+            .with(WEST_FENCE,  false)
+            .with(Properties.WATERLOGGED, false)
     );
   }
 
   @Override
-  public InteractionResult onSneakWrenched (BlockState state, UseOnContext context) {
-    BlockPos pos   = context.getClickedPos();
-    Vec3 subbox    = context.getClickLocation().subtract(pos.getCenter());
-    Direction face = context.getClickedFace();
-    Level level    = context.getLevel();
-    Player player  = context.getPlayer();
+  public ActionResult onSneakWrenched (BlockState state, ItemUsageContext context) {
+    BlockPos pos   = context.getBlockPos();
+    Vec3d subbox    = context.getHitPos().subtract(pos.toCenterPos());
+    Direction face = context.getSide();
+    World level    = context.getWorld();
+    PlayerEntity player  = context.getPlayer();
     var x = subbox.x;
     var z = subbox.z;
 
-    if (level.isClientSide() || face == Direction.DOWN) return InteractionResult.PASS;
+    if (level.isClient() || face == Direction.DOWN) return ActionResult.PASS;
 
     //check if the top face is wrenched, remove side
     if (face == Direction.UP) {
@@ -86,107 +84,107 @@ public class CatwalkRailingBlock extends Block implements IWrenchable, ProperWat
       if (bottomleft && topleft) dir = Direction.WEST;
 
       //obscure edge case where a corner of the top face cannot be wrenched
-      if (state.getValue(fromDirection(dir))) {
-        state = state.setValue(fromDirection(dir), false);
-        level.setBlock(pos, state, 3);
+      if (state.get(fromDirection(dir))) {
+        state = state.with(fromDirection(dir), false);
+        level.setBlockState(pos, state, 3);
         IWrenchable.playRemoveSound(level, pos);
-        if (!player.getAbilities().instabuild) player.addItem(new ItemStack(state.getBlock().asItem()));
-        return InteractionResult.SUCCESS;
+        if (!player.getAbilities().creativeMode) player.giveItemStack(new ItemStack(state.getBlock().asItem()));
+        return ActionResult.SUCCESS;
       }
-      else return InteractionResult.PASS;
+      else return ActionResult.PASS;
     }
 
     //check for wrenching the inside faces
-    if (x == 0.375 || x == -0.375 || z == 0.375 || z == -0.375) state = state.setValue(fromDirection(face.getOpposite()), false);
+    if (x == 0.375 || x == -0.375 || z == 0.375 || z == -0.375) state = state.with(fromDirection(face.getOpposite()), false);
 
     //check for wrenching the outside faces
     if (x == 0.5 || x == -0.5 || z == 0.5 || z == -0.5) {
-      if (!state.getValue(fromDirection(face))) {
-        if (x >= 0.375) state = state.setValue(EAST_FENCE, false);
-        if (x <= -0.375) state = state.setValue(WEST_FENCE, false);
-        if (z <= -0.375) state = state.setValue(NORTH_FENCE, false);
-        if (z >= 0.375) state = state.setValue(SOUTH_FENCE, false);
+      if (!state.get(fromDirection(face))) {
+        if (x >= 0.375) state = state.with(EAST_FENCE, false);
+        if (x <= -0.375) state = state.with(WEST_FENCE, false);
+        if (z <= -0.375) state = state.with(NORTH_FENCE, false);
+        if (z >= 0.375) state = state.with(SOUTH_FENCE, false);
       }
-      else state = state.setValue(fromDirection(face), false);
+      else state = state.with(fromDirection(face), false);
     }
 
-    level.setBlock(pos, state, 3);
+    level.setBlockState(pos, state, 3);
     IWrenchable.playRemoveSound(level, pos);
-    if (!player.getAbilities().instabuild) player.addItem(new ItemStack(state.getBlock().asItem()));
-    return InteractionResult.SUCCESS;
+    if (!player.getAbilities().creativeMode) player.giveItemStack(new ItemStack(state.getBlock().asItem()));
+    return ActionResult.SUCCESS;
   }
 
   @Nullable
   @Override
-  public BlockState getStateForPlacement (BlockPlaceContext ctx) {
-    Direction facing = ctx.getHorizontalDirection();
-    FluidState fluid = ctx.getLevel().getFluidState(ctx.getClickedPos());
-    BlockState state = defaultBlockState()
-            .setValue(NORTH_FENCE, (facing == Direction.NORTH))
-            .setValue(SOUTH_FENCE, (facing == Direction.SOUTH))
-            .setValue(EAST_FENCE,  (facing == Direction.EAST))
-            .setValue(WEST_FENCE,  (facing == Direction.WEST))
-            .setValue(BlockStateProperties.WATERLOGGED, fluid.getType() == Fluids.WATER);
+  public BlockState getPlacementState (ItemPlacementContext ctx) {
+    Direction facing = ctx.getHorizontalPlayerFacing();
+    FluidState fluid = ctx.getWorld().getFluidState(ctx.getBlockPos());
+    BlockState state = getDefaultState()
+            .with(NORTH_FENCE, (facing == Direction.NORTH))
+            .with(SOUTH_FENCE, (facing == Direction.SOUTH))
+            .with(EAST_FENCE,  (facing == Direction.EAST))
+            .with(WEST_FENCE,  (facing == Direction.WEST))
+            .with(Properties.WATERLOGGED, fluid.getFluid() == Fluids.WATER);
     return state;
   }
 
   @Override
-  protected void createBlockStateDefinition (StateDefinition.Builder<Block, BlockState> builder) {
-    super.createBlockStateDefinition(builder);
+  protected void appendProperties (StateManager.Builder<Block, BlockState> builder) {
+    super.appendProperties(builder);
     builder.add(NORTH_FENCE);
     builder.add(SOUTH_FENCE);
     builder.add(EAST_FENCE);
     builder.add(WEST_FENCE);
-    builder.add(BlockStateProperties.WATERLOGGED);
+    builder.add(Properties.WATERLOGGED);
   }
 
   @Override
   public BlockState getRotatedBlockState(BlockState originalState, Direction targetedFace) {
     if (targetedFace.getAxis() == Direction.Axis.Y) {
       int state =
-              (originalState.getValue(NORTH_FENCE) ? 8 : 0) +
-                      (originalState.getValue(EAST_FENCE)  ? 4 : 0) +
-                      (originalState.getValue(SOUTH_FENCE) ? 2 : 0) +
-                      (originalState.getValue(WEST_FENCE)  ? 1 : 0);
+              (originalState.get(NORTH_FENCE) ? 8 : 0) +
+                      (originalState.get(EAST_FENCE)  ? 4 : 0) +
+                      (originalState.get(SOUTH_FENCE) ? 2 : 0) +
+                      (originalState.get(WEST_FENCE)  ? 1 : 0);
       return originalState
-              .setValue(NORTH_FENCE, (state & 1) == 1)
-              .setValue(EAST_FENCE,  (state & 8) == 8)
-              .setValue(SOUTH_FENCE, (state & 4) == 4)
-              .setValue(WEST_FENCE,  (state & 2) == 2);
+              .with(NORTH_FENCE, (state & 1) == 1)
+              .with(EAST_FENCE,  (state & 8) == 8)
+              .with(SOUTH_FENCE, (state & 4) == 4)
+              .with(WEST_FENCE,  (state & 2) == 2);
     }
     return originalState;
   }
 
   @Override
-  public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx) {
-    return getInteractionShape(state, reader, pos);
+  public VoxelShape getOutlineShape(BlockState state, BlockView reader, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    return getCollisionShape(state, reader, pos, ctx);
   }
 
   @Override
-  public VoxelShape getInteractionShape (BlockState state, BlockGetter world, BlockPos pos) {
-    VoxelShape shape = Shapes.empty();
-    if (state.getValue(NORTH_FENCE)) shape = Shapes.join(shape, VOXEL_NORTH, BooleanOp.OR);
-    if (state.getValue(SOUTH_FENCE)) shape = Shapes.join(shape, VOXEL_SOUTH, BooleanOp.OR);
-    if (state.getValue(EAST_FENCE))  shape = Shapes.join(shape, VOXEL_EAST,  BooleanOp.OR);
-    if (state.getValue(WEST_FENCE))  shape = Shapes.join(shape, VOXEL_WEST,  BooleanOp.OR);
+  public VoxelShape getCollisionShape (BlockState state, BlockView world, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    VoxelShape shape = VoxelShapes.empty();
+    if (state.get(NORTH_FENCE)) shape = VoxelShapes.union(shape, VOXEL_NORTH);
+    if (state.get(SOUTH_FENCE)) shape = VoxelShapes.union(shape, VOXEL_SOUTH);
+    if (state.get(EAST_FENCE))  shape = VoxelShapes.union(shape, VOXEL_EAST);
+    if (state.get(WEST_FENCE))  shape = VoxelShapes.union(shape, VOXEL_WEST);
 
     return shape;
   }
 
   @Override
-  public boolean canPlaceLiquid(@Nullable Player playerEntity, BlockGetter world, BlockPos pos, BlockState state, Fluid fluid) {
-    return !state.getValue(BlockStateProperties.WATERLOGGED) && fluid == Fluids.WATER;
+  public boolean canFillWithFluid(@Nullable PlayerEntity playerEntity, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
+    return !state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER;
   }
 
   // used to ensure the block doesn't leave a ghost behind if all 4 sides are gone
   @Override
-  public void neighborChanged (
-          BlockState state, Level level, BlockPos pos,
+  public void neighborUpdate (
+          BlockState state, World level, BlockPos pos,
           Block neighborBlock, BlockPos neighborPos, boolean movedByPiston
   ) {
 
-    if (isEmpty(state)) level.setBlock(pos, Blocks.AIR.defaultBlockState(), 0);
-    super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+    if (isEmpty(state)) level.setBlockState(pos, Blocks.AIR.getDefaultState(), 0);
+    super.neighborUpdate(state, level, pos, neighborBlock, neighborPos, movedByPiston);
   }
 
   public static boolean isRailing (ItemStack test) {
@@ -208,50 +206,50 @@ public class CatwalkRailingBlock extends Block implements IWrenchable, ProperWat
 
   public boolean isEmpty(BlockState state) {
     boolean safe = false;
-    for (Direction dir : BlockStateProperties.HORIZONTAL_FACING.getPossibleValues()) {
-      safe |= state.getValue(fromDirection(dir));
+    for (Direction dir : Properties.HORIZONTAL_FACING.getValues()) {
+      safe |= state.get(fromDirection(dir));
     }
     return !safe;
   }
 
   @Override
   public FluidState getFluidState(BlockState state) {
-    return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
+    return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : Fluids.EMPTY.getDefaultState();
   }
 
   @Override
-  public BlockState rotate(BlockState state, Rotation rotation) {
-    boolean north = state.getValue(NORTH_FENCE);
-    boolean south = state.getValue(SOUTH_FENCE);
-    boolean east = state.getValue(EAST_FENCE);
-    boolean west = state.getValue(WEST_FENCE);
+  public BlockState rotate(BlockState state, BlockRotation rotation) {
+    boolean north = state.get(NORTH_FENCE);
+    boolean south = state.get(SOUTH_FENCE);
+    boolean east = state.get(EAST_FENCE);
+    boolean west = state.get(WEST_FENCE);
     switch (rotation){
       case CLOCKWISE_90 -> {
-        north = state.getValue(WEST_FENCE);
-        south = state.getValue(EAST_FENCE);
-        east = state.getValue(NORTH_FENCE);
-        west = state.getValue(SOUTH_FENCE);
+        north = state.get(WEST_FENCE);
+        south = state.get(EAST_FENCE);
+        east = state.get(NORTH_FENCE);
+        west = state.get(SOUTH_FENCE);
       }
       case CLOCKWISE_180 -> {
-        north = state.getValue(SOUTH_FENCE);
-        south = state.getValue(NORTH_FENCE);
-        east = state.getValue(WEST_FENCE);
-        west = state.getValue(EAST_FENCE);
+        north = state.get(SOUTH_FENCE);
+        south = state.get(NORTH_FENCE);
+        east = state.get(WEST_FENCE);
+        west = state.get(EAST_FENCE);
       }
       case COUNTERCLOCKWISE_90 -> {
-        north = state.getValue(EAST_FENCE);
-        south = state.getValue(WEST_FENCE);
-        east = state.getValue(SOUTH_FENCE);
-        west = state.getValue(NORTH_FENCE);
+        north = state.get(EAST_FENCE);
+        south = state.get(WEST_FENCE);
+        east = state.get(SOUTH_FENCE);
+        west = state.get(NORTH_FENCE);
       }
       case NONE -> {
-        north = state.getValue(NORTH_FENCE);
-        south = state.getValue(SOUTH_FENCE);
-        east = state.getValue(EAST_FENCE);
-        west = state.getValue(WEST_FENCE);
+        north = state.get(NORTH_FENCE);
+        south = state.get(SOUTH_FENCE);
+        east = state.get(EAST_FENCE);
+        west = state.get(WEST_FENCE);
       }
     }
-    BlockState newState = defaultBlockState().setValue(NORTH_FENCE, north).setValue(SOUTH_FENCE, south).setValue(EAST_FENCE, east).setValue(WEST_FENCE, west);
+    BlockState newState = getDefaultState().with(NORTH_FENCE, north).with(SOUTH_FENCE, south).with(EAST_FENCE, east).with(WEST_FENCE, west);
     return newState;
   }
 }

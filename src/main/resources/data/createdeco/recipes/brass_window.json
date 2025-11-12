@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building_blocks",
+  "pattern": [
+    " # ",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "item": "create:brass_ingot"
+    },
+    "X": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "result": {
+    "id": "createdeco:brass_window",
+    "count": 2
+  }
+}

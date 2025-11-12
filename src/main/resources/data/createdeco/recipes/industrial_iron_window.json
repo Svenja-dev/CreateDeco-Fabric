@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building_blocks",
+  "pattern": [
+    " # ",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "item": "createdeco:industrial_iron_ingot"
+    },
+    "X": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "result": {
+    "id": "createdeco:industrial_iron_window",
+    "count": 2
+  }
+}

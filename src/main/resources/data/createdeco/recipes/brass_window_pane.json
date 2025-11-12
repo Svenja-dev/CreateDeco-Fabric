@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building_blocks",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "createdeco:brass_window"
+    }
+  },
+  "result": {
+    "id": "createdeco:brass_window_pane",
+    "count": 16
+  }
+}

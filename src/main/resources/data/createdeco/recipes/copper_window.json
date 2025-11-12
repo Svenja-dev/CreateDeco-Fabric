@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building_blocks",
+  "pattern": [
+    " # ",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:copper_ingot"
+    },
+    "X": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "result": {
+    "id": "createdeco:copper_window",
+    "count": 2
+  }
+}

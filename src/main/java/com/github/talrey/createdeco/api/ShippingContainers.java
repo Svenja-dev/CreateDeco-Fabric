@@ -1,0 +1,84 @@
+package com.github.talrey.createdeco.api;
+
+import com.github.talrey.createdeco.BlockStateGenerator;
+import com.github.talrey.createdeco.CreateDecoMod;
+import com.github.talrey.createdeco.blocks.ShippingContainerBlock;
+import com.github.talrey.createdeco.connected.ShippingContainerCTBehavior;
+import com.github.talrey.createdeco.items.ShippingContainerBlockItem;
+import com.zurrtum.create.AllBlocks;
+import com.zurrtum.create.AllItems;
+import com.zurrtum.create.AllMountedStorageTypes;
+import com.zurrtum.create.api.contraption.storage.item.MountedItemStorageType;
+import com.zurrtum.create.foundation.data.CreateRegistrate;
+import com.zurrtum.create.foundation.data.SharedProperties;
+import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
+import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
+
+public class ShippingContainers {
+  public static BlockBuilder<ShippingContainerBlock,?> build (
+    CreateRegistrate reg, DyeColor color
+  ) {
+    String regName = color.getName() + "_shipping_container";
+    String visName = WordUtils.capitalizeFully(color.getName().replaceAll("_", " "));
+
+    return reg.block(regName, p -> new ShippingContainerBlock(p, color))
+      .initialProperties(SharedProperties::softMetal)
+      .properties(BlockBehaviour.Properties::requiresCorrectToolForDrops)
+//      .properties(p -> p.mapColor(DyeColor.valueOf(color)))
+      .properties(p -> p.sound(SoundType.NETHERITE_BLOCK).explosionResistance(1200))
+      .transform(pickaxeOnly())
+      .item(ShippingContainerBlockItem::new)
+        .build()
+      .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+      //String visName =  color.name().charAt(0) + color.name().substring(1).toLowerCase().replaceAll("_", " ")
+      .lang(visName + " Shipping Container")
+
+      .blockstate((ctx, prov) -> BlockStateGenerator.shippingContainer(CreateDecoMod.REGISTRATE, color, ctx, prov))
+      .transform(MountedItemStorageType.mountedItemStorage(AllMountedStorageTypes.VAULT))
+      .onRegister(connectedTextures(ShippingContainerCTBehavior::new));
+  }
+
+  public static <T extends Block> void recipeCrafting (DyeColor color, DataGenContext<Block, T> ctx, RegistrateRecipeProvider prov) {
+    ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ctx.get())
+      .pattern("CS")
+      .pattern("SB")
+      .define('S', AllItems.IRON_SHEET)
+      .define('C', DyeItem.byColor(color))
+      .define('B', Items.BARREL)
+      .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(
+        ItemPredicate.Builder.item().of(AllItems.IRON_SHEET).build()
+      ))
+      .save(prov, color.getName() + "_shipping_container");
+  }
+
+  public static <T extends Block> void recipeDyeing (DyeColor color, DataGenContext<Block, T> ctx, RegistrateRecipeProvider prov) {
+    ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ctx.get())
+      .requires(DyeItem.byColor(color))
+      .requires(AllBlocks.ITEM_VAULT.asItem())
+      .unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(
+        ItemPredicate.Builder.item().of(AllBlocks.ITEM_VAULT.asItem()).build()
+      ))
+      .save(prov, color.getName() + "_shipping_container_from_dyeing_vaults");
+  }
+}

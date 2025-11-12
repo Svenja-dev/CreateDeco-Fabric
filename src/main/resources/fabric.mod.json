@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "createdeco",
+  "version": "${version}",
+  "name": "Create Deco",
+  "description": "Decorative options for your Create factory",
+  "authors": [
+    "Kayla",
+    "Talrey",
+    "Ordana",
+    "Cassian"
+  ],
+  "contact": {
+    "homepage": "https://github.com/talrey/CreateDeco/",
+    "sources": "https://github.com/talrey/CreateDeco/",
+    "issues": "https://github.com/talrey/CreateDeco/issues"
+  },
+  "license": "All Rights Reserved",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.github.talrey.createdeco.CreateDecoMod"
+    ],
+    "client": [
+      "com.github.talrey.createdeco.CreateDecoModClient"
+    ]
+  },
+  "mixins": [
+    "createdeco.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "minecraft": ">=1.21.10- <1.21.11-",
+    "create": ">=6.0.8",
+    "java": ">=21"
+  },
+  "suggests": {
+    "jei": "*",
+    "rei": "*"
+  }
+}

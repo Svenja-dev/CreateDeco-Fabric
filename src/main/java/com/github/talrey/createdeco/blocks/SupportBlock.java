@@ -7,88 +7,85 @@ import net.createmod.catnip.placement.IPlacementHelper;
 import net.createmod.catnip.placement.PlacementHelpers;
 import net.createmod.catnip.placement.PlacementOffset;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FacingBlock;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-public class SupportBlock extends DirectionalBlock implements ProperWaterloggedBlock {
-  private static final VoxelShape NORTH = Block.box(
+public class SupportBlock extends FacingBlock implements ProperWaterloggedBlock {
+  private static final VoxelShape NORTH = Block.createCuboidShape(
     0d, 0d, 0d,
     16d, 16d, 2d
   );
-  private static final VoxelShape SOUTH = Block.box(
+  private static final VoxelShape SOUTH = Block.createCuboidShape(
     0d, 0d, 14d,
     16d, 16d, 16d
   );
-  private static final VoxelShape EAST = Block.box(
+  private static final VoxelShape EAST = Block.createCuboidShape(
     0d, 0d, 0d,
     2d, 16d, 16d
   );
-  private static final VoxelShape WEST = Block.box(
+  private static final VoxelShape WEST = Block.createCuboidShape(
     14d, 0d, 0d,
     16d, 16d, 16d
   );
-  private static final VoxelShape UP = Block.box(
+  private static final VoxelShape UP = Block.createCuboidShape(
     0d, 14d, 0d,
     16d, 16d, 16d
   );
-  private static final VoxelShape DOWN = Block.box(
+  private static final VoxelShape DOWN = Block.createCuboidShape(
     0d, 0d, 0d,
     16d, 2d, 16d
   );
-  private static final VoxelShape X = Shapes.join(EAST,  WEST,  BooleanOp.OR);
-  private static final VoxelShape Y = Shapes.join(UP,    DOWN,  BooleanOp.OR);
-  private static final VoxelShape Z = Shapes.join(NORTH, SOUTH, BooleanOp.OR);
+  private static final VoxelShape X = VoxelShapes.union(EAST, WEST);
+  private static final VoxelShape Y = VoxelShapes.union(UP, DOWN);
+  private static final VoxelShape Z = VoxelShapes.union(NORTH, SOUTH);
 
   private static final int placementHelperId = PlacementHelpers.register(new SupportBlock.PlacementHelper());
 
-  public SupportBlock (Properties props) {
+  public SupportBlock (Settings props) {
     super(props);
-    this.registerDefaultState(this.defaultBlockState()
-            .setValue(WATERLOGGED, false));
+    this.setDefaultState(this.getDefaultState()
+            .with(WATERLOGGED, false));
   }
 
     @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
+    protected MapCodec<? extends FacingBlock> codec() {
         return null;
     }
 
     @Override
-  protected void createBlockStateDefinition (StateDefinition.Builder<Block, BlockState> builder) {
-    builder.add(BlockStateProperties.WATERLOGGED, FACING);
+  protected void appendProperties (StateManager.Builder<Block, BlockState> builder) {
+    builder.add(Properties.WATERLOGGED, FACING);
   }
 
   @Override
-  protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult ray) {
-    ItemStack heldItem = player.getItemInHand(hand);
+  protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult ray) {
+    ItemStack heldItem = player.getStackInHand(hand);
 
     IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
     if (!placementHelper.matchesItem(heldItem))
-      return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+      return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
     return placementHelper.getOffset(player, world, state, pos, ray)
       .placeInWorld(world, ((BlockItem) heldItem.getItem()), player, hand, ray);
@@ -96,35 +93,35 @@ public class SupportBlock extends DirectionalBlock implements ProperWaterloggedB
 
   @Nullable
   @Override
-  public BlockState getStateForPlacement (BlockPlaceContext ctx) {
-    FluidState fluid = ctx.getLevel().getFluidState(ctx.getClickedPos());
-    BlockState result = defaultBlockState()
-      .setValue(FACING,ctx.getClickedFace())
-      .setValue(BlockStateProperties.WATERLOGGED, fluid.is(Fluids.WATER));
+  public BlockState getPlacementState (ItemPlacementContext ctx) {
+    FluidState fluid = ctx.getWorld().getFluidState(ctx.getBlockPos());
+    BlockState result = getDefaultState()
+      .with(FACING, ctx.getSide())
+      .with(Properties.WATERLOGGED, fluid.isOf(Fluids.WATER));
     return result;
   }
 
   @Override
-  public boolean canPlaceLiquid(@Nullable Player playerEntity, BlockGetter world, BlockPos pos, BlockState state, Fluid fluid) {
-    return !state.getValue(BlockStateProperties.WATERLOGGED) && fluid == Fluids.WATER;
+  public boolean canFillWithFluid(@Nullable PlayerEntity playerEntity, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
+    return !state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER;
   }
 
   @Override
   public FluidState getFluidState (BlockState state) {
-    return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
+    return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : Fluids.EMPTY.getDefaultState();
   }
 
   @Override
-  public VoxelShape getVisualShape (BlockState state, BlockGetter getter, BlockPos pos, CollisionContext ctx) {
-    return Shapes.empty();
+  public VoxelShape getCullingShape (BlockState state, BlockView getter, BlockPos pos) {
+    return VoxelShapes.empty();
   }
 
   @Override
-  public VoxelShape getShape (BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx) {
-    return switch (state.getValue(FACING).getAxis()) {
-      case X  -> Shapes.join(Y,Z, BooleanOp.OR);
-      case Z  -> Shapes.join(X,Y, BooleanOp.OR);
-      default -> Shapes.join(X,Z, BooleanOp.OR);
+  public VoxelShape getOutlineShape (BlockState state, BlockView reader, BlockPos pos, net.minecraft.util.shape.VoxelShapeContext ctx) {
+    return switch (state.get(FACING).getAxis()) {
+      case X  -> VoxelShapes.union(VoxelShapes.union(Y, Z));
+      case Z  -> VoxelShapes.union(VoxelShapes.union(X, Y));
+      default -> VoxelShapes.union(VoxelShapes.union(X, Z));
     };
   }
 
@@ -141,7 +138,7 @@ public class SupportBlock extends DirectionalBlock implements ProperWaterloggedB
   private static class PlacementHelper extends PoleHelper<Direction> {
     public PlacementHelper() {
       super(state -> SupportBlock.isSupportBlock(state.getBlock()),
-        state -> state.getValue(SupportBlock.FACING).getAxis(), SupportBlock.FACING
+        state -> state.get(SupportBlock.FACING).getAxis(), SupportBlock.FACING
       );
     }
 
@@ -156,7 +153,7 @@ public class SupportBlock extends DirectionalBlock implements ProperWaterloggedB
     }
 
     @Override
-    public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos,
+    public PlacementOffset getOffset(PlayerEntity player, World world, BlockState state, BlockPos pos,
                                      BlockHitResult ray) {
       PlacementOffset offset = super.getOffset(player, world, state, pos, ray);
       offset.withTransform(offset.getTransform());

@@ -73,7 +73,7 @@ public class BlockRegistry {
 
 	public static HashMap<String, net.minecraft.block.Block> LADDERS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> HULLS          = new HashMap<>();
-	public static HashMap<String, BlockEntry<SupportBlock>> SUPPORTS    = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> SUPPORTS    = new HashMap<>();
 	public static HashMap<String, BlockEntry<SupportWedgeBlock>> WEDGES = new HashMap<>();
 	public static HashMap<String, BlockEntry<FacadeBlock>> FACADES      = new HashMap<>();
 
@@ -269,10 +269,11 @@ public class BlockRegistry {
 	}
 
 	private static void registerSupports (String metal, Function<String, Item> getter) {
-		SUPPORTS.put(metal, Supports.build(CreateDecoMod.REGISTRATE, metal)
-				.recipe(Supports.recipe(()->getter.apply("ingot")))
-				.register()
-		);
+		// Register support using vanilla registry API
+		SUPPORTS.put(metal, Supports.createAndRegister(metal));
+
+		// TODO: Create recipe JSON file for support
+		// Crafting: 4 ingots in cross pattern → 4 supports
 	}
 
 	private static void registerShippingContainers () {

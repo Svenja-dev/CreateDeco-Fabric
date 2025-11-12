@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "decorations",
+  "ingredients": [
+    {
+      "item": "createdeco:iron_coin"
+    },
+    {
+      "item": "createdeco:iron_coin"
+    },
+    {
+      "item": "createdeco:iron_coin"
+    },
+    {
+      "item": "createdeco:iron_coin"
+    }
+  ],
+  "result": {
+    "id": "createdeco:iron_coinstack",
+    "count": 1
+  }
+}

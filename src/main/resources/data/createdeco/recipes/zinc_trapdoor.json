@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    "mm",
+    "mm"
+  ],
+  "key": {
+    "m": {
+      "item": "create:zinc_ingot"
+    }
+  },
+  "result": {
+    "id": "createdeco:zinc_trapdoor",
+    "count": 1
+  }
+}

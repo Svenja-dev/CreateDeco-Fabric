@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "decorations",
+  "ingredients": [
+    {
+      "item": "createdeco:netherite_coin"
+    },
+    {
+      "item": "createdeco:netherite_coin"
+    },
+    {
+      "item": "createdeco:netherite_coin"
+    },
+    {
+      "item": "createdeco:netherite_coin"
+    }
+  ],
+  "result": {
+    "id": "createdeco:netherite_coinstack",
+    "count": 1
+  }
+}

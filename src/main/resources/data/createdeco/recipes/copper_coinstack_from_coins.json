@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "decorations",
+  "ingredients": [
+    {
+      "item": "createdeco:copper_coin"
+    },
+    {
+      "item": "createdeco:copper_coin"
+    },
+    {
+      "item": "createdeco:copper_coin"
+    },
+    {
+      "item": "createdeco:copper_coin"
+    }
+  ],
+  "result": {
+    "id": "createdeco:copper_coinstack",
+    "count": 1
+  }
+}

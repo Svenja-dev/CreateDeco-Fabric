@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    "mm",
+    "mm"
+  ],
+  "key": {
+    "m": {
+      "item": "createdeco:industrial_iron_ingot"
+    }
+  },
+  "result": {
+    "id": "createdeco:industrial_iron_trapdoor",
+    "count": 1
+  }
+}

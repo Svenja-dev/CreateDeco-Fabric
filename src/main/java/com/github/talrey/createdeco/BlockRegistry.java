@@ -65,7 +65,7 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block> BARS       = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> BAR_PANELS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> MESH_FENCES   = new HashMap<>();
-	public static HashMap<String, BlockEntry<ConnectedPillarBlock>> SHEET_METAL_PILLARS = new HashMap<>();
+	public static HashMap<String, net.minecraft.block.Block> SHEET_METAL_PILLARS = new HashMap<>();
 
 	public static HashMap<String, BlockEntry<CatwalkBlock>> CATWALKS                = new HashMap<>();
 	public static HashMap<String, BlockEntry<CatwalkStairBlock>> CATWALK_STAIRS     = new HashMap<>();
@@ -200,11 +200,11 @@ public class BlockRegistry {
 	}
 
 	private static void registerSheetMetal (String metal, Function<String, Item> getter) {
-		SHEET_METAL_PILLARS.put(metal, SheetMetal.buildBlock(CreateDecoMod.REGISTRATE, metal)
-				.recipe( (ctx, prov)-> {
-					SheetMetal.recipeCrafting(metal, ctx, prov);
-				})
-				.register());
+		// Register sheet metal using vanilla registry API
+		SHEET_METAL_PILLARS.put(metal, SheetMetal.createAndRegister(metal));
+
+		// TODO: Create recipe JSON file for sheet metal
+		// Crafting: 4 plates in 2x2 pattern → 4 sheet metal blocks
 	}
 
 	public static final BlockEntry<WindowBlock>

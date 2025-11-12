@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pp",
+    "pp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:iron_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:iron_sheet_metal",
+    "count": 4
+  }
+}

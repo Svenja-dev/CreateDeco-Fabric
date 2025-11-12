@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pp",
+    "pp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:andesite_alloy_plates"
+    }
+  },
+  "result": {
+    "item": "createdeco:andesite_sheet_metal",
+    "count": 4
+  }
+}

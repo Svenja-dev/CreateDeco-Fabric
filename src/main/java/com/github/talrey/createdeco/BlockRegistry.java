@@ -272,21 +272,14 @@ public class BlockRegistry {
 	}
 
 	private static void registerShippingContainers () {
-		for (DyeColor color : DyeColor.values()) {
-			SHIPPING_CONTAINERS.put(color, ShippingContainers.build(CreateDecoMod.REGISTRATE, color)
-					.recipe( (ctx, prov)-> {
-						ShippingContainers.recipeCrafting(color, ctx, prov);
-						ShippingContainers.recipeDyeing(color, ctx, prov);
-					})
-					.register()
-			);
-			CONTAINER_ENTITIES.put(color, CreateDecoMod.REGISTRATE.blockEntity(
-							"shipping_container_" + color.getName().toLowerCase(Locale.ROOT).replaceAll(" ", "_"),
-							ShippingContainerBlock.Entity::new)
-					.validBlocks(SHIPPING_CONTAINERS.get(color))
-					.register()
-			);
-		}
+		// TODO: Convert Shipping Containers API to Factory pattern
+		// Shipping Containers require:
+		// - BlockEntity registration (ShippingContainerBlock.Entity)
+		// - 16 container blocks (one per DyeColor)
+		// - Inventory storage functionality
+		// - Crafting recipes (from iron sheets)
+		// - Dyeing recipes (color conversion)
+		// This is deferred until BlockEntity support is implemented
 	}
 
 	private static void registerPlacards () {

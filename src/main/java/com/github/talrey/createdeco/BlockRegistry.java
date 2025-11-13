@@ -369,6 +369,20 @@ public class BlockRegistry {
 		});
 	}
 
+	/**
+	 * Helper method to get a cage lamp block by metal and color.
+	 * Used by Creative Tabs to populate the tab.
+	 */
+	public static net.minecraft.block.Block getCageLamp(String metal, String color) {
+		return switch (color.toLowerCase()) {
+			case "yellow" -> YELLOW_CAGE_LAMPS.get(metal);
+			case "red" -> RED_CAGE_LAMPS.get(metal);
+			case "green" -> GREEN_CAGE_LAMPS.get(metal);
+			case "blue" -> BLUE_CAGE_LAMPS.get(metal);
+			default -> null;
+		};
+	}
+
 //	private static TagKey<Block> of (String namespace, String path) {
 //		return BlockTags.create(
 //			ResourceLocation.fromNamespaceAndPath(namespace, path)

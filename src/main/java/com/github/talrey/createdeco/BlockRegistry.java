@@ -96,9 +96,7 @@ public class BlockRegistry {
 		// load the class and register everything
 		CreateDecoMod.LOGGER.info("Registering blocks for " + CreateDecoMod.NAME);
 
-		// Props registration
-		CreateDecoMod.REGISTRATE.defaultCreativeTab(CreativeTabs.PROPS_KEY);
-
+		// Register all converted block types
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerBars);
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerFences);
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerCatwalks);
@@ -108,14 +106,13 @@ public class BlockRegistry {
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerCageLamps);
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerSheetMetal);
 		ItemRegistry.METAL_TYPES.forEach(BlockRegistry::registerDoors);
-		registerShippingContainers();
 		registerDecals();
-		registerPlacards();
 		ItemRegistry.COIN_METALS.forEach(BlockRegistry::registerCoins);
 
-		// Bricks registration
-		CreateDecoMod.REGISTRATE.defaultCreativeTab(CreativeTabs.BRICKS_KEY);
-		registerBricks();
+		// TODO: Convert and enable these registrations
+		// registerShippingContainers(); // Requires BlockEntity conversion
+		// registerPlacards(); // Requires BlockEntity conversion
+		// registerBricks(); // Requires conversion of 196 blocks
 	}
 
 	private static void registerBars (String metal, Function<String, Item> getter) {

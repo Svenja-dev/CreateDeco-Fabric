@@ -46,10 +46,11 @@ public class BlockRegistry {
 		put(null, "red");
 	}};
 
-	public static HashMap<DyeColor, HashMap<String, BlockEntry<Block>>>      BRICKS = new HashMap<>();
-	public static HashMap<DyeColor, HashMap<String, BlockEntry<StairBlock>>> STAIRS = new HashMap<>();
-	public static HashMap<DyeColor, HashMap<String, BlockEntry<SlabBlock>>>   SLABS = new HashMap<>();
-	public static HashMap<DyeColor, HashMap<String, BlockEntry<WallBlock>>>   WALLS= new HashMap<>();
+	// TODO: Convert Bricks to Factory pattern (196 blocks total)
+	// public static HashMap<DyeColor, HashMap<String, Block>> BRICKS = new HashMap<>();
+	// public static HashMap<DyeColor, HashMap<String, Block>> STAIRS = new HashMap<>();
+	// public static HashMap<DyeColor, HashMap<String, Block>> SLABS = new HashMap<>();
+	// public static HashMap<DyeColor, HashMap<String, Block>> WALLS = new HashMap<>();
 
 	public static HashMap<String, net.minecraft.block.Block> DECALS = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> YELLOW_CAGE_LAMPS = new HashMap<>();
@@ -77,13 +78,15 @@ public class BlockRegistry {
 	public static HashMap<String, net.minecraft.block.Block> WEDGES = new HashMap<>();
 	public static HashMap<String, net.minecraft.block.Block> FACADES      = new HashMap<>();
 
-	public static HashMap<DyeColor, BlockEntry<? extends PlacardBlock>> PLACARDS = new HashMap<>();
-	public static BlockEntityEntry<DyedPlacardBlock.Entity> PLACARD_ENTITIES;
+	// TODO: Convert Placards to Factory pattern (requires BlockEntity support)
+	// public static HashMap<DyeColor, Block> PLACARDS = new HashMap<>();
+	// public static BlockEntityType<DyedPlacardBlock.Entity> PLACARD_ENTITIES;
 
 	public static HashMap<String, Block> COIN_BLOCKS  = new HashMap<>();
 
-	public static HashMap<DyeColor, BlockEntry<ShippingContainerBlock>> SHIPPING_CONTAINERS = new HashMap<>();
-	public static HashMap<DyeColor, BlockEntityEntry<ShippingContainerBlock.Entity>> CONTAINER_ENTITIES = new HashMap<>();
+	// TODO: Convert Shipping Containers to Factory pattern (requires BlockEntity support)
+	// public static HashMap<DyeColor, Block> SHIPPING_CONTAINERS = new HashMap<>();
+	// public static HashMap<DyeColor, BlockEntityType<ShippingContainerBlock.Entity>> CONTAINER_ENTITIES = new HashMap<>();
 
 	public static DyeColor fromName (String color) {
 		for (DyeColor dye : BRICK_COLORS.keySet()) {

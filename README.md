@@ -47,9 +47,12 @@ This port successfully converts CreateDeco from NeoForge's Registrate system to 
 
 ### What's Pending ⏳
 
-#### Models (0% - Needs Textures)
-- ⏳ Block model JSON files (require textures from original mod)
-- ⏳ Texture assets (need to be copied from NeoForge version)
+#### Models (50% - Placeholders Ready)
+- ✅ Block model JSON files (324 placeholder models using vanilla textures)
+- ⏳ Texture assets (need to be copied from NeoForge version for proper visuals)
+- ⏳ Custom model geometry (some blocks need complex shapes)
+
+**Note:** Placeholder models enable compilation and testing. Blocks will render with vanilla textures until original assets are added.
 
 #### BlockEntities (0% - Complex)
 - ⏳ Placards (15 blocks) - Requires BlockEntity + Renderer
@@ -66,6 +69,12 @@ See **[FABRIC_PORT_STATUS.md](FABRIC_PORT_STATUS.md)** for:
 - File-by-file status
 - Next steps and instructions
 
+See **[PLACEHOLDER_MODELS.md](PLACEHOLDER_MODELS.md)** for:
+- Placeholder model system documentation
+- Texture mapping strategy
+- Testing instructions
+- How to replace with real textures
+
 ## Project Details
 
 - **Target Minecraft Version:** 1.21.10
@@ -80,7 +89,7 @@ See **[FABRIC_PORT_STATUS.md](FABRIC_PORT_STATUS.md)** for:
 ./gradlew build
 ```
 
-**Note:** Build requires internet connection to download Gradle dependencies. The mod will compile but blocks won't render without texture assets.
+**Note:** Build requires internet connection to download Gradle dependencies. The mod will compile and blocks will render with placeholder vanilla textures. For proper visuals, copy texture assets from the NeoForge version first.
 
 ## Installation
 

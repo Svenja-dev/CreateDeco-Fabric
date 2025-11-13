@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/iron_bars_side",
+  "textures": {
+    "bars": "minecraft:block/gold_block",
+    "edge": "minecraft:block/gold_block",
+    "particle": "minecraft:block/gold_block"
+  }
+}

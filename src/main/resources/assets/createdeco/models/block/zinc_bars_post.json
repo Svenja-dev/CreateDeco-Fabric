@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/iron_bars_post",
+  "textures": {
+    "bars": "minecraft:block/light_gray_concrete",
+    "particle": "minecraft:block/light_gray_concrete"
+  }
+}

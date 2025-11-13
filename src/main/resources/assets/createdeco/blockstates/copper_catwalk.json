@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "bottom=false,waterlogged=false": {
+      "model": "createdeco:block/copper_catwalk"
+    },
+    "bottom=false,waterlogged=true": {
+      "model": "createdeco:block/copper_catwalk"
+    },
+    "bottom=true,waterlogged=false": {
+      "model": "createdeco:block/copper_catwalk_supported"
+    },
+    "bottom=true,waterlogged=true": {
+      "model": "createdeco:block/copper_catwalk_supported"
+    }
+  }
+}

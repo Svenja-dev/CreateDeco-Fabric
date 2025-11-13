@@ -5,7 +5,7 @@
         "facing": "north"
       },
       "apply": {
-        "model": "createdeco:block/brass_catwalk_stairs"
+        "model": "createdeco:block/netherite_catwalk_stairs"
       }
     },
     {
@@ -13,7 +13,7 @@
         "facing": "south"
       },
       "apply": {
-        "model": "createdeco:block/brass_catwalk_stairs",
+        "model": "createdeco:block/netherite_catwalk_stairs",
         "y": 180
       }
     },
@@ -22,7 +22,7 @@
         "facing": "east"
       },
       "apply": {
-        "model": "createdeco:block/brass_catwalk_stairs",
+        "model": "createdeco:block/netherite_catwalk_stairs",
         "y": 90
       }
     },
@@ -31,7 +31,7 @@
         "facing": "west"
       },
       "apply": {
-        "model": "createdeco:block/brass_catwalk_stairs",
+        "model": "createdeco:block/netherite_catwalk_stairs",
         "y": 270
       }
     }

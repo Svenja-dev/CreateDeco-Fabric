@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "bottom=false,waterlogged=false": {
+      "model": "createdeco:block/andesite_catwalk"
+    },
+    "bottom=false,waterlogged=true": {
+      "model": "createdeco:block/andesite_catwalk"
+    },
+    "bottom=true,waterlogged=false": {
+      "model": "createdeco:block/andesite_catwalk_supported"
+    },
+    "bottom=true,waterlogged=true": {
+      "model": "createdeco:block/andesite_catwalk_supported"
+    }
+  }
+}

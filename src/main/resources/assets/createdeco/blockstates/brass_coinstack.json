@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "layers=1": {
+      "model": "createdeco:block/brass_coinstack_height2"
+    },
+    "layers=2": {
+      "model": "createdeco:block/brass_coinstack_height4"
+    },
+    "layers=3": {
+      "model": "createdeco:block/brass_coinstack_height6"
+    },
+    "layers=4": {
+      "model": "createdeco:block/brass_coinstack_height8"
+    },
+    "layers=5": {
+      "model": "createdeco:block/brass_coinstack_height10"
+    },
+    "layers=6": {
+      "model": "createdeco:block/brass_coinstack_height12"
+    },
+    "layers=7": {
+      "model": "createdeco:block/brass_coinstack_height14"
+    },
+    "layers=8": {
+      "model": "createdeco:block/brass_coinstack_height16"
+    }
+  }
+}

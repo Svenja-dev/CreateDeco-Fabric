@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "createdeco:iron_ladder",
+    "createdeco:zinc_ladder",
+    "createdeco:netherite_ladder",
+    "createdeco:industrial_iron_ladder"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    "createdeco:andesite_yellow_cage_lamp",
+    "createdeco:andesite_red_cage_lamp",
+    "createdeco:andesite_green_cage_lamp",
+    "createdeco:andesite_blue_cage_lamp",
+    "createdeco:copper_yellow_cage_lamp",
+    "createdeco:copper_red_cage_lamp",
+    "createdeco:copper_green_cage_lamp",
+    "createdeco:copper_blue_cage_lamp",
+    "createdeco:iron_yellow_cage_lamp",
+    "createdeco:iron_red_cage_lamp",
+    "createdeco:iron_green_cage_lamp",
+    "createdeco:iron_blue_cage_lamp",
+    "createdeco:industrial_iron_yellow_cage_lamp",
+    "createdeco:industrial_iron_red_cage_lamp",
+    "createdeco:industrial_iron_green_cage_lamp",
+    "createdeco:industrial_iron_blue_cage_lamp",
+    "createdeco:brass_yellow_cage_lamp",
+    "createdeco:brass_red_cage_lamp",
+    "createdeco:brass_green_cage_lamp",
+    "createdeco:brass_blue_cage_lamp",
+    "createdeco:zinc_yellow_cage_lamp",
+    "createdeco:zinc_red_cage_lamp",
+    "createdeco:zinc_green_cage_lamp",
+    "createdeco:zinc_blue_cage_lamp",
+    "createdeco:netherite_yellow_cage_lamp",
+    "createdeco:netherite_red_cage_lamp",
+    "createdeco:netherite_green_cage_lamp",
+    "createdeco:netherite_blue_cage_lamp"
+  ]
+}

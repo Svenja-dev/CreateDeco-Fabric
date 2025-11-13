@@ -1,0 +1,26 @@
+{
+  "replace": false,
+  "values": [
+    "createdeco:andesite_support",
+    "createdeco:copper_support",
+    "createdeco:iron_support",
+    "createdeco:industrial_iron_support",
+    "createdeco:brass_support",
+    "createdeco:zinc_support",
+    "createdeco:netherite_support",
+    "createdeco:andesite_support_wedge",
+    "createdeco:copper_support_wedge",
+    "createdeco:iron_support_wedge",
+    "createdeco:industrial_iron_support_wedge",
+    "createdeco:brass_support_wedge",
+    "createdeco:zinc_support_wedge",
+    "createdeco:netherite_support_wedge",
+    "createdeco:andesite_facade",
+    "createdeco:copper_facade",
+    "createdeco:iron_facade",
+    "createdeco:industrial_iron_facade",
+    "createdeco:brass_facade",
+    "createdeco:zinc_facade",
+    "createdeco:netherite_facade"
+  ]
+}

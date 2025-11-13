@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "createdeco:andesite_window",
+    "createdeco:copper_window",
+    "createdeco:iron_window",
+    "createdeco:industrial_iron_window",
+    "createdeco:brass_window",
+    "createdeco:zinc_window",
+    "createdeco:andesite_window_pane",
+    "createdeco:copper_window_pane",
+    "createdeco:iron_window_pane",
+    "createdeco:industrial_iron_window_pane",
+    "createdeco:brass_window_pane",
+    "createdeco:zinc_window_pane"
+  ]
+}

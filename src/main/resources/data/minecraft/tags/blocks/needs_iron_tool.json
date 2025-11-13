@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "#createdeco:cage_lamps",
+    "#createdeco:windows",
+    "#createdeco:catwalks",
+    "#createdeco:bars",
+    "#createdeco:mesh_fences",
+    "#createdeco:sheet_metals"
+  ]
+}

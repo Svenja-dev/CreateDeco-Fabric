@@ -30,20 +30,19 @@ public class ItemRegistry {
 
   public static void init () {
     CreateDecoMod.LOGGER.info("Registering items for " + CreateDecoMod.NAME);
-    CreateDecoMod.REGISTRATE.defaultCreativeTab("props_tab");
 
     METAL_TYPES.put("Andesite", (str) -> AllItems.ANDESITE_ALLOY.get());
     METAL_TYPES.put("Zinc", (str) -> AllItems.ZINC_INGOT.get());
     METAL_TYPES.put("Copper", (str) -> Items.COPPER_INGOT);
     METAL_TYPES.put("Brass", (str) -> AllItems.BRASS_INGOT.get());
     METAL_TYPES.put("Iron", (str) -> Items.IRON_INGOT);
-    METAL_TYPES.put("Industrial Iron", (str) -> INDUSTRIAL_IRON_INGOT.get());
+    METAL_TYPES.put("Industrial Iron", (str) -> INDUSTRIAL_IRON_INGOT);
 
     COIN_METALS.put("Zinc", (str) -> AllItems.ZINC_INGOT.get());
     COIN_METALS.put("Copper", (str) -> Items.COPPER_INGOT);
     COIN_METALS.put("Brass", (str) -> AllItems.BRASS_INGOT.get());
     COIN_METALS.put("Iron", (str) -> Items.IRON_INGOT);
-    COIN_METALS.put("Industrial Iron", (str) -> INDUSTRIAL_IRON_INGOT.get());
+    COIN_METALS.put("Industrial Iron", (str) -> INDUSTRIAL_IRON_INGOT);
     COIN_METALS.put("Gold", (str) -> Items.GOLD_INGOT);
     COIN_METALS.put("Netherite", (str) -> Items.NETHERITE_INGOT);
 
@@ -56,49 +55,59 @@ public class ItemRegistry {
   }
 
   private static void registerSheets () {
-    ANDESITE_SHEET = CreateDecoMod.REGISTRATE.item("andesite_sheet", Item::new)
-        .tag(CreateDecoTags.plate("Andesite"))
-        .lang("Andesite Alloy Sheet")
-        .register();
+    ANDESITE_SHEET = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "andesite_sheet"),
+      new Item(new Item.Settings())
+    );
 
-    ZINC_SHEET = CreateDecoMod.REGISTRATE.item("zinc_sheet", Item::new)
-      .tag(CreateDecoTags.plate("Zinc"))
-      .lang("Zinc Sheet")
-      .register();
+    ZINC_SHEET = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "zinc_sheet"),
+      new Item(new Item.Settings())
+    );
 
-//    NETHERITE_SHEET = CreateDecoMod.REGISTRATE.item("netherite_sheet", Item::new)
-//      .properties(Item.Properties::fireResistant)
-//      .tag(CreateDecoTags.plate("Netherite"))
-//      .lang("Netherite Sheet")
-//      .register();
+    INDUSTRIAL_IRON_SHEET = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "industrial_iron_sheet"),
+      new Item(new Item.Settings())
+    );
 
-    INDUSTRIAL_IRON_SHEET = CreateDecoMod.REGISTRATE.item("industrial_iron_sheet", Item::new)
-      .tag(CreateDecoTags.plate("Industrial Iron"))
-      .lang("Industrial Iron Sheet")
-      .register();
+    // TODO: Add to plate tags in CreateDecoTags
+    // TODO: Add lang entries to en_us.json
   }
 
   private static void registerNuggets () {
-    NETHERITE_NUGGET = CreateDecoMod.REGISTRATE.item("netherite_nugget", Item::new)
-      .properties(Item.Properties::fireResistant)
-      .tag(CreateDecoTags.nugget("Netherite"))
-      .lang("Netherite Nugget")
-      .recipe((ctx, prov) -> prov.storage(ctx, RecipeCategory.MISC, () -> Items.NETHERITE_INGOT))
-      .register();
+    NETHERITE_NUGGET = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "netherite_nugget"),
+      new Item(new Item.Settings().fireproof())
+    );
 
-    INDUSTRIAL_IRON_NUGGET = CreateDecoMod.REGISTRATE.item("industrial_iron_nugget", Item::new)
-      .tag(CreateDecoTags.nugget("Industrial Iron"))
-      .lang("Industrial Iron Nugget")
-      .recipe((ctx, prov) -> prov.storage(ctx, RecipeCategory.MISC, INDUSTRIAL_IRON_INGOT))
-      .register();
+    INDUSTRIAL_IRON_NUGGET = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "industrial_iron_nugget"),
+      new Item(new Item.Settings())
+    );
+
+    // TODO: Create recipe JSON files
+    // Storage: 9 nuggets ↔ 1 ingot for both metals
+    // TODO: Add to nugget tags
+    // TODO: Add lang entries
   }
 
   private static void registerIngots () {
-    INDUSTRIAL_IRON_INGOT = CreateDecoMod.REGISTRATE.item("industrial_iron_ingot", Item::new)
-      .tag(CreateDecoTags.ingot("Industrial Iron"))
-      .lang("Industrial Iron Ingot")
-      .recipe((ctx, prov) -> prov.storage(ctx, RecipeCategory.MISC, AllBlocks.INDUSTRIAL_IRON_BLOCK))
-      .register();
+    INDUSTRIAL_IRON_INGOT = Registry.register(
+      Registries.ITEM,
+      Identifier.of("createdeco", "industrial_iron_ingot"),
+      new Item(new Item.Settings())
+    );
+
+    // TODO: Create recipe JSON files
+    // Storage: 9 nuggets → 1 ingot, 9 ingots → 1 block, 1 block → 9 ingots
+    // Smelting/Blasting: crushed_raw_iron → industrial_iron_ingot
+    // TODO: Add to ingot tags
+    // TODO: Add lang entry
   }
 
   private static void registerCoins (String metal, Function<String, Item> getter) {
